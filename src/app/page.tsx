@@ -28,18 +28,29 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="p-5 h-screen flex flex-col">
-      <div className="flex justify-center">
+    <main className="flex flex-col h-screen">
+      <div className="flex justify-center p-5">
         <SearchPokemon searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </div>
-      <div className="flex-grow overflow-auto mt-10">
-        <PokemonList pokemons={pokemonList?.results} setPokemon={(value) => setPokemon(value)} />
+      <div className="flex-grow overflow-auto mt-2 p-5">
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error fetching the Pokémon list.</p>
+        ) : (
+          <PokemonList pokemons={pokemonList?.results} setPokemon={setPokemon} />
+        )}
       </div>
-      <button className="bg-green-800 disabled:bg-gray-300 text-white rounded-full p-3 m-5 self-center w-full"
-        disabled={!pokemon}
-        onClick={() => pokemon && handleChoosePokemon(pokemon)}>
-        I Choose You
-      </button>
+      <div className="bg-white w-full h-1/5">
+        <button
+          className="bg-green-800 text-white rounded-full p-3 m-5 fixed bottom-4 left-0 right-0 mx-auto w-11/12 max-w-md"
+          disabled={!pokemon}
+          onClick={() => pokemon && handleChoosePokemon(pokemon)}
+        >
+          I Choose You
+        </button>
+
+      </div>
     </main>
   );
 }
