@@ -1,0 +1,9 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "eslint.alwaysShowStatus": true,
+  "alias-resolver.type": "custom",
+  "alias-resolver.accessPath": "next.config.js"
+}
