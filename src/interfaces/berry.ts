@@ -5,15 +5,15 @@ export interface BerryListAPIResponse {
   results: BerryItemResult[]
 }
 
-interface BerryItemResult {
+export interface BerryItemResult {
   name: string
   url: string
   id: string
-  imageUrl: {
-    small: string
-    large: string
-  }
+  firmness: Firmness
+  imageUrl: string
 }
+
+export type Firmness = 'very-soft' | 'soft' | 'hard' | 'very-hard' | 'super-hard';
 
 export interface BerrySingleAPIResponse {
   id: number

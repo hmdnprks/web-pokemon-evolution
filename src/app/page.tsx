@@ -13,7 +13,7 @@ export default function Home() {
 
   const [pokemon, setPokemon] = useState<PokemonItemResult | null>(null);
 
-  const { data, isLoading, error } = usePokemonList();
+  const { data: pokemonList, isLoading, error } = usePokemonList();
 
   const handleChoosePokemon = (pokemon: PokemonItemResult) => {
     setToStorage('POKEMON_PROFILE', pokemon);
@@ -27,19 +27,13 @@ export default function Home() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (value) {
-  //     router.push('/profile');
-  //   }
-  // }, [value, router])
-
   return (
     <main className="p-5 h-screen flex flex-col">
       <div className="flex justify-center">
         <SearchPokemon searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </div>
       <div className="flex-grow overflow-auto mt-10">
-        <PokemonList pokemons={data?.results} setPokemon={(value) => setPokemon(value)} />
+        <PokemonList pokemons={pokemonList?.results} setPokemon={(value) => setPokemon(value)} />
       </div>
       <button className="bg-green-800 disabled:bg-gray-300 text-white rounded-full p-3 m-5 self-center w-full"
         disabled={!pokemon}

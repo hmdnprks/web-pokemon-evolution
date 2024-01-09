@@ -25,6 +25,36 @@ export interface PokemonSingleAPIResponse {
   types: PokemonType[]
 }
 
+export interface PokemonStatsAPIResponse {
+  id: string,
+  name: string,
+  stats: {
+    hp: number,
+    attack: number,
+    defense: number,
+    speed: number,
+    weight: number,
+  }
+  nextEvolution: NextEvolution
+}
+
+export interface NextEvolution {
+  name: string
+  url: string
+  id: string
+  imageUrl: {
+    small: string
+    large: string
+  }
+  stats: {
+    hp: number
+    attack: number
+    defense: number
+    speed: number
+    weight: number
+  }
+}
+
 export interface PokemonItemResult {
   name: string
   url: string

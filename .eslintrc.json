@@ -15,7 +15,7 @@
     "max-len": [
       2,
       {
-        "code": 100,
+        "code": 150,
         "ignoreStrings": true
       }
     ],
