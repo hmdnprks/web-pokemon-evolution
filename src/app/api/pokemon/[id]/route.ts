@@ -1,11 +1,9 @@
-import { PokemonListAPIResponse, PokemonSingleAPIResponse } from "@component/interfaces/pokemon";
+import { PokemonSingleAPIResponse } from '@component/interfaces/pokemon';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const url = `${process.env.API_URL}/pokemon/${params.id}`;
-  console.log('url :>> ', url);
   const res = await fetch(url);
   const data: PokemonSingleAPIResponse = await res.json();
-  console.log('data :>> ', data);
 
   const pokemonData = {
     id: data.id,
@@ -17,7 +15,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       speed: data.stats[5].base_stat,
       weight: data.weight,
     }
-  }
+  };
 
   return Response.json({ data: pokemonData });
 }

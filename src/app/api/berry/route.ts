@@ -1,4 +1,4 @@
-import { BerryListAPIResponse, BerrySingleAPIResponse, ItemAPIResponse } from "@component/interfaces/berry";
+import { BerryListAPIResponse, BerrySingleAPIResponse, ItemAPIResponse } from '@component/interfaces/berry';
 
 export async function GET(request: Request) {
   const res = await fetch(`${process.env.API_URL}/berry`);

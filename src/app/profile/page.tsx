@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getFromStorage, setToStorage, usePersistedState } from '@component/hooks/usePersistedState';
+import { getFromStorage, setToStorage } from '@component/hooks/usePersistedState';
 import { PokemonItemResult } from '@component/interfaces/pokemon';
 import { usePokemonDetail } from '@component/hooks/usePokemon';
 
@@ -39,18 +39,16 @@ export default function Profile() {
     Weight: pokemonDetail?.data.stats.weight,
   };
 
-  console.log('pokemonDetail :>> ', pokemonDetail);
-
   return (
     <div className="min-h-screen bg-white py-10">
       <header className="flex justify-center items-center px-4 gap-4">
         <h1 className="text-2xl font-bold capitalize">{pokemon?.name}</h1>
-        <button onClick={deletePokemon} className="text-xl bg-red-200 rounded-full w-8 h-8 flex items-center justify-center">
+        <button className="text-xl bg-red-200 rounded-full w-8 h-8 flex items-center justify-center" onClick={deletePokemon}>
           &times;
         </button>
       </header>
       <div className="flex justify-center mt-4">
-        <img src={pokemon?.imageUrl.large} alt={pokemon?.name} className="w-60 h-60 object-cover" />
+        <img alt={pokemon?.name} className="w-60 h-60 object-cover" src={pokemon?.imageUrl.large} />
       </div>
       <div className="text-center mt-8 px-4 grid grid-cols-3 gap-3">
         {Object.entries(pokemonStats).map(([key, value]) => (

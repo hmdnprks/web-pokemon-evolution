@@ -1,6 +1,6 @@
 'use client';
-import SearchPokemon from '../components/Search/Search'
-import { useEffect, useState } from 'react'
+import SearchPokemon from '../components/Search/Search';
+import { useEffect, useState } from 'react';
 import { usePokemonList } from '../hooks/usePokemon';
 import PokemonList from '@component/components/PokemonList/PokemonList';
 import { PokemonItemResult } from '@component/interfaces/pokemon';
@@ -41,11 +41,11 @@ export default function Home() {
       <div className="flex-grow overflow-auto mt-10">
         <PokemonList pokemons={data?.results} setPokemon={(value) => setPokemon(value)} />
       </div>
-      <button disabled={!pokemon}
-        className="bg-green-800 disabled:bg-gray-300 text-white rounded-full p-3 m-5 self-center w-full"
+      <button className="bg-green-800 disabled:bg-gray-300 text-white rounded-full p-3 m-5 self-center w-full"
+        disabled={!pokemon}
         onClick={() => pokemon && handleChoosePokemon(pokemon)}>
         I Choose You
       </button>
     </main>
-  )
+  );
 }

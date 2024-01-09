@@ -134,14 +134,14 @@ interface PokemonSpecies {
 }
 
 interface SpriteVersions {
-  "back_default": string | null;
-  "back_female": string | null;
-  "back_shiny": string | null;
-  "back_shiny_female": string | null;
-  "front_default": string | null;
-  "front_female": string | null;
-  "front_shiny": string | null;
-  "front_shiny_female": string | null;
+  'back_default': string | null;
+  'back_female': string | null;
+  'back_shiny': string | null;
+  'back_shiny_female': string | null;
+  'front_default': string | null;
+  'front_female': string | null;
+  'front_shiny': string | null;
+  'front_shiny_female': string | null;
   [key: string]: any;
 }
 
@@ -157,7 +157,7 @@ interface PokemonSprites {
   other: {
     dream_world: SpriteVersions;
     home: SpriteVersions;
-    "official-artwork": SpriteVersions;
+    'official-artwork': SpriteVersions;
     showdown: SpriteVersions;
   };
   versions: {

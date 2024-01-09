@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable unused-vars/no-unused-vars */
 import { useEffect, useState } from 'react';
 import ls from 'localstorage-slim';
 
@@ -19,7 +21,8 @@ function setToStorage<T>(key: StorageKey, value: StoredValue<T>): void {
   }
 }
 
-function usePersistedState<T>(key: StorageKey, defaultValue: T): [StoredValue<T>, (value: T) => void] {
+function usePersistedState<T>(key: StorageKey, defaultValue: T): [StoredValue<T>,
+  (value: T) => void] {
   const [state, setState] = useState<StoredValue<T>>(() => getFromStorage(key) ?? defaultValue);
 
   useEffect(() => {

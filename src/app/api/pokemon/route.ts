@@ -1,4 +1,4 @@
-import { PokemonListAPIResponse, PokemonSingleAPIResponse } from "@component/interfaces/pokemon";
+import { PokemonListAPIResponse, PokemonSingleAPIResponse } from '@component/interfaces/pokemon';
 
 export async function GET(request: Request) {
   const res = await fetch(`${process.env.API_URL}/pokemon`);

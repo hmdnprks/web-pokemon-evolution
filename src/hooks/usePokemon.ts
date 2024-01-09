@@ -12,9 +12,9 @@ const fetchPokemonDetail = async (id: string) => {
 };
 
 export const usePokemonList = () => {
-  return useQuery({ queryKey: ['pokemonList'], queryFn: fetchPokemonList })
+  return useQuery({ queryKey: ['pokemonList'], queryFn: fetchPokemonList });
 };
 
 export const usePokemonDetail = (id: string) => {
-  return useQuery({ queryKey: ['pokemonDetail', id], queryFn: () => fetchPokemonDetail(id) })
+  return useQuery({ queryKey: ['pokemonDetail', id], queryFn: () => fetchPokemonDetail(id) });
 };
