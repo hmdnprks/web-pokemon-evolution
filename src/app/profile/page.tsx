@@ -8,6 +8,7 @@ import { useBerryList } from '@component/hooks/useBerry';
 import { BerryItemResult } from '@component/interfaces/berry';
 import BerryList from '@component/components/BerryList/BerryList';
 import { firmnessMap } from '@component/constants/berry-weight';
+import CountUp from 'react-countup';
 
 interface PokemonStats {
   HP: number;
@@ -24,6 +25,15 @@ export default function Profile() {
   const { data: pokemonDetailRes, isLoading } = usePokemonDetail(pokemon?.id);
   const pokemonDetail: PokemonStatsAPIResponse = pokemonDetailRes?.data;
   const nextEvolution: NextEvolution = pokemonDetail?.nextEvolution;
+  const [pokemonStats, setPokemonStats] = useState<PokemonStats>({
+    HP: 0,
+    Attack: 0,
+    Defense: 0,
+    Speed: 0,
+    Weight: 0,
+  });
+  const [feedHistory, setFeedHistory] = useState<BerryItemResult[]>([]);
+  const [weightHistory, setWeightHistory] = useState<number[]>([]);
 
   const { data: berryList } = useBerryList();
   const berries: BerryItemResult[] = berryList?.results;
@@ -36,17 +46,33 @@ export default function Profile() {
     }
   }, [pokemon, router]);
 
+  useEffect(() => {
+    if (pokemonDetail) {
+      setPokemonStats({
+        HP: pokemonDetail?.stats.hp,
+        Attack: pokemonDetail?.stats.attack,
+        Defense: pokemonDetail?.stats.defense,
+        Speed: pokemonDetail?.stats.speed,
+        Weight: pokemonDetail?.stats.weight,
+      });
+    }
+  }, [pokemonDetail]);
+
   const deletePokemon = () => {
     setToStorage('POKEMON_PROFILE', null);
     router.push('/');
   };
 
-  const pokemonStats: PokemonStats = {
-    HP: pokemonDetail?.stats.hp,
-    Attack: pokemonDetail?.stats.attack,
-    Defense: pokemonDetail?.stats.defense,
-    Speed: pokemonDetail?.stats.speed,
-    Weight: pokemonDetail?.stats.weight,
+  const feedPokemon = () => {
+    if (selectedBerry) {
+      const newWeight = pokemonStats.Weight + firmnessMap[selectedBerry.firmness];
+      setPokemonStats({
+        ...pokemonStats,
+        Weight: newWeight,
+      });
+      setFeedHistory([...feedHistory, selectedBerry]);
+      setWeightHistory([...weightHistory, firmnessMap[selectedBerry.firmness]]);
+    }
   };
 
   return (
@@ -68,23 +94,37 @@ export default function Profile() {
             →
           </div>
         )}
-        <img
-          alt={nextEvolution?.name}
-          className="w-32 h-32 object-cover opacity-50"
-          src={nextEvolution?.imageUrl.large}
-        />
+        <div>
+          <img
+            alt={nextEvolution?.name}
+            className="w-32 h-32 object-cover opacity-50"
+            src={nextEvolution?.imageUrl.large}
+          />
+          <p className="text-center text-gray-500 text-sm capitalize">{nextEvolution?.name}</p>
+        </div>
+
       </div>
       {nextEvolution && (
         <div className="text-center mt-8">
           <p className="text-gray-500 text-sm">Next Evolution Weight</p>
-          <p className="text-xl font-bold text-orange-500">{nextEvolution.stats.weight}</p>
+          <p className="text-xl font-bold text-orange-500">{nextEvolution.stats.weight}
+            <span className={nextEvolution.stats.weight - pokemonStats.Weight >= 0 ? 'text-red-600' : 'text-green-600'}>
+              &nbsp;({nextEvolution.stats.weight - pokemonStats.Weight <= 0 ? '+' : '-'}
+              <CountUp duration={2} end={Math.abs(nextEvolution.stats.weight - pokemonStats.Weight)}
+                start={weightHistory.length > 0 ? Math.abs(nextEvolution.stats.weight -
+                  pokemonStats.Weight) - weightHistory[weightHistory.length - 1] : 0} />)
+            </span>
+          </p>
         </div>
       )}
       <div className="text-center mt-8 px-4 grid grid-cols-3 gap-3 justify-items-center">
         {Object.entries(pokemonStats).map(([key, value]) => (
           <div key={key}>
             <div className="text-gray-500 text-sm">{key}</div>
-            <div className="text-xl font-bold">{value}</div>
+            <div className="text-xl font-bold">
+              <CountUp duration={2} end={value} start={(key === 'Weight' && weightHistory.length > 0) ?
+                (value - weightHistory[weightHistory.length - 1]) : 0} />
+            </div>
           </div>
         ))}
       </div>
@@ -109,7 +149,7 @@ export default function Profile() {
         <BerryList berries={berries} setSelectedBerry={item => setSelectedBerry(item)} />
       </div>
       <div className="fixed bottom-8 left-0 w-full px-4 py-2">
-        <button className="w-full disabled:bg-gray-300 bg-green-800 text-white py-2 rounded-full" disabled={!selectedBerry}>Feed Pokemon</button>
+        <button className="w-full disabled:bg-gray-300 bg-green-800 text-white py-2 rounded-full" disabled={!selectedBerry} onClick={() => feedPokemon()}>Feed Pokemon</button>
       </div>
     </div>
   );
