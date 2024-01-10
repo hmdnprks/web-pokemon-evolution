@@ -32,10 +32,6 @@ const PokemonList: React.FC<PokemonListProps> = ({ pokemons, setPokemon }) => {
     setPokemon(pokemon);
   };
 
-  if (!pokemons) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="grid lg:grid-cols-4 grid-cols-3 gap-4">
       {pokemons.map(pokemon => (

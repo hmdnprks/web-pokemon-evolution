@@ -6,6 +6,7 @@ import PokemonList from '@component/components/PokemonList/PokemonList';
 import { PokemonItemResult } from '@component/interfaces/pokemon';
 import { getFromStorage, setToStorage } from '@component/hooks/usePersistedState';
 import { useRouter } from 'next/navigation';
+import Skeleton from '@component/components/Skeletion/Skeleton';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +28,17 @@ export default function Home() {
     }
   }, []);
 
+  const GridSkeleton = () => {
+    return (
+      <div className="grid lg:grid-cols-4 grid-cols-3 gap-4">
+        {Array.from(Array(18).keys()).map((_, index) => (
+          <Skeleton key={`skeleton-${index}`} />
+
+        ))}
+      </div>
+    );
+  };
+
   return (
     <main className="flex flex-col h-screen">
       <div className="flex justify-center p-5">
@@ -34,7 +46,7 @@ export default function Home() {
       </div>
       <div className="flex-grow overflow-auto mt-2 p-5">
         {isLoading ? (
-          <p>Loading...</p>
+          <GridSkeleton />
         ) : error ? (
           <p>Error fetching the Pokémon list.</p>
         ) : (
