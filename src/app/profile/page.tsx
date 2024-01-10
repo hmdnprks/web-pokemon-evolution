@@ -9,6 +9,8 @@ import { BerryItemResult } from '@component/interfaces/berry';
 import BerryList from '@component/components/BerryList/BerryList';
 import { firmnessMap } from '@component/constants/berry-weight';
 import CountUp from 'react-countup';
+import ChevronAnimation from '@component/components/ChevronAnimation/ChevronAnimation';
+import { clearTimeout } from 'timers';
 
 interface PokemonStats {
   HP: number;
@@ -25,6 +27,7 @@ export default function Profile() {
   const { data: pokemonDetailRes, isLoading } = usePokemonDetail(pokemon?.id);
   const pokemonDetail: PokemonStatsAPIResponse = pokemonDetailRes?.data;
   const nextEvolution: NextEvolution = pokemonDetail?.nextEvolution;
+
   const [pokemonStats, setPokemonStats] = useState<PokemonStats>({
     HP: 0,
     Attack: 0,
@@ -39,6 +42,10 @@ export default function Profile() {
   const berries: BerryItemResult[] = berryList?.results;
 
   const [selectedBerry, setSelectedBerry] = useState<BerryItemResult | null>(null);
+
+  const [showChevronUp, setShowChevronUp] = useState(false);
+  const [showChevronDown, setShowChevronDown] = useState(false);
+  const [chevronTimeoutId, setChevronTimeoutId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!pokemon) {
@@ -58,6 +65,14 @@ export default function Profile() {
     }
   }, [pokemonDetail]);
 
+  useEffect(() => {
+    return () => {
+      if (chevronTimeoutId) {
+        clearTimeout(chevronTimeoutId);
+      };
+    };
+  }, []);
+
   const deletePokemon = () => {
     setToStorage('POKEMON_PROFILE', null);
     router.push('/');
@@ -72,6 +87,11 @@ export default function Profile() {
       });
       setFeedHistory([...feedHistory, selectedBerry]);
       setWeightHistory([...weightHistory, firmnessMap[selectedBerry.firmness]]);
+
+
+      setShowChevronUp(true);
+      const id = setTimeout(() => setShowChevronUp(false), 1000);
+      setChevronTimeoutId(id as unknown as number);
     }
   };
 
@@ -84,21 +104,21 @@ export default function Profile() {
             &times;
           </button>
         </header>
-        <div className="flex justify-center mt-4 space-x-4 items-center w-full overflow-hidden">
+        <div className="flex justify-center mt-4 space-x-2 items-center w-full overflow-hidden p-4">
           <img
             alt={pokemon?.name}
-            className="w-60 h-60 object-cover"
+            className="w-48 h-48 object-cover"
             src={pokemon?.imageUrl.large}
           />
           {nextEvolution && (
-            <div className="flex items-center justify-center text-lg mx-4 text-gray-600">
-              →
+            <div>
+              <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
             </div>
           )}
           <div>
             <img
               alt={nextEvolution?.name}
-              className="w-32 h-32 object-cover opacity-50"
+              className="w-28 h-28 object-cover opacity-50"
               src={nextEvolution?.imageUrl.large}
             />
             <p className="text-center text-gray-500 text-sm capitalize">{nextEvolution?.name}</p>
@@ -106,44 +126,49 @@ export default function Profile() {
 
         </div>
         {nextEvolution && (
-          <div className="text-center mt-8">
+          <div className="text-center mt-2">
             <p className="text-gray-500 text-sm">Next Evolution Weight</p>
-            <p className="text-xl font-bold text-orange-500">{nextEvolution.stats.weight}
-              <span className={nextEvolution.stats.weight - pokemonStats.Weight >= 0 ? 'text-red-600' : 'text-green-600'}>
-                &nbsp;({nextEvolution.stats.weight - pokemonStats.Weight <= 0 ? '+' : '-'}
-                <CountUp duration={2} end={Math.abs(nextEvolution.stats.weight - pokemonStats.Weight)}
-                  start={weightHistory.length > 0 ? Math.abs(nextEvolution.stats.weight -
-                    pokemonStats.Weight) - weightHistory[weightHistory.length - 1] : 0} />)
-              </span>
-            </p>
+            <div className="flex font-bold text-xl justify-center gap-1 mt-2">
+
+              <p className="self-center">
+                <span className=" text-orange-500">{nextEvolution.stats.weight}</span>
+                <span className={`${nextEvolution.stats.weight - pokemonStats.Weight >= 0 ? 'text-red-600' : 'text-green-600 '} text-xs`}>
+                  &nbsp;({nextEvolution.stats.weight - pokemonStats.Weight <= 0 ? '+' : '-'}
+                  <CountUp duration={2} end={Math.abs(nextEvolution.stats.weight - pokemonStats.Weight)}
+                    start={weightHistory.length > 0 ? Math.abs(nextEvolution.stats.weight -
+                      pokemonStats.Weight) - weightHistory[weightHistory.length - 1] : 0} />)
+                </span>
+              </p>
+            </div>
           </div>
         )}
         <div className="text-center mt-8 px-4 grid grid-cols-3 gap-3 justify-items-center">
           {Object.entries(pokemonStats).map(([key, value]) => (
             <div key={key}>
               <div className="text-gray-500 text-sm">{key}</div>
-              <div className="text-xl font-bold">
+              <div className={`text-xl font-bold ${key === 'Weight' && 'flex justify-center'} gap-2`}>
                 <CountUp duration={2} end={value} start={(key === 'Weight' && weightHistory.length > 0) ?
                   (value - weightHistory[weightHistory.length - 1]) : 0} />
+                {key === 'Weight' && showChevronUp && <ChevronAnimation arrow="up" />}
+                {key === 'Weight' && showChevronDown && <ChevronAnimation arrow="down" />}
               </div>
             </div>
           ))}
         </div>
-        <div className="text-center mt-32 px-4">
+        <div className="text-center mt-16 px-4">
           {selectedBerry && (
-
             <div className="flex justify-center items-center gap-4 mb-4">
               <div>
                 <p className="text-gray-500 text-sm">Berries</p>
-                <p className="text-xl font-bold capitalize">{selectedBerry?.name}</p>
+                <p className="text-lg font-bold capitalize">{selectedBerry?.name}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Firmness</p>
-                <p className="text-xl font-bold capitalize">{selectedBerry?.firmness}</p>
+                <p className="text-lg font-bold capitalize">{selectedBerry?.firmness}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Weight</p>
-                <p className="text-xl font-bold capitalize text-orange-500">+{firmnessMap[selectedBerry?.firmness || 'others']}</p>
+                <p className="text-lg font-bold capitalize text-orange-500">+{firmnessMap[selectedBerry?.firmness || 'others']}</p>
               </div>
             </div>
           )}
