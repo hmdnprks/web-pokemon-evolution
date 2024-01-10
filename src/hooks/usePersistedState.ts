@@ -8,7 +8,7 @@ type StoredValue<T> = T | null;
 
 function getFromStorage<T>(key: StorageKey): StoredValue<T> {
   if (typeof window !== 'undefined') {
-    ls.config.storage = sessionStorage;
+    ls.config.storage = localStorage;
     return ls.get(key, { decrypt: true }) as StoredValue<T>;
   }
   return null;
@@ -16,7 +16,7 @@ function getFromStorage<T>(key: StorageKey): StoredValue<T> {
 
 function setToStorage<T>(key: StorageKey, value: StoredValue<T>): void {
   if (typeof window !== 'undefined') {
-    ls.config.storage = sessionStorage;
+    ls.config.storage = localStorage;
     ls.set(key, value, { encrypt: true });
   }
 }
