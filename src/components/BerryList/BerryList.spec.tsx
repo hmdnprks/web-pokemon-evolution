@@ -39,4 +39,10 @@ describe('BerryList', () => {
     expect(firstBerryName).toBeInTheDocument();
     expect(secondBerryName).toBeInTheDocument();
   });
+
+  it('does not render any berries when berries array is empty', () => {
+    render(<BerryList berries={[]} setSelectedBerry={() => { }} />);
+    const berryElements = screen.queryAllByRole('img');
+    expect(berryElements).toHaveLength(1);
+  });
 });
