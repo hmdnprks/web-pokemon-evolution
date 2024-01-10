@@ -43,6 +43,6 @@ describe('BerryList', () => {
   it('does not render any berries when berries array is empty', () => {
     render(<BerryList berries={[]} setSelectedBerry={() => { }} />);
     const berryElements = screen.queryAllByRole('img');
-    expect(berryElements).toHaveLength(1);
+    expect(berryElements).toHaveLength(0);
   });
 });
