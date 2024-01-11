@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Project Setup Guide
 
-## Getting Started
+This guide will help you set up the project, run the application, and execute tests.
 
-First, run the development server:
+## Prerequisites
 
-```bash
+- Node.js and npm installed on your machine.
+- Minimum Node.js version: v18.17.0
+
+## Setup
+
+1. Clone the repository to your local machine.
+2. Navigate to the project directory.
+3. Install the project dependencies by running `npm install`.
+
+## Running the Application
+
+To run the application, use the following command:
+
+```sh
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will start and by default can be accessed at http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Building the Application
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+To build the application for production, use the following command:
 
-## Learn More
+```sh
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+This will create a .next directory with the built application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Running Tests
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+This project uses Jest for unit testing. To run the tests, use the following command:
 
-## Deploy on Vercel
+```sh
+npm run test
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Running Cypress Tests
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+This project uses Cypress for end-to-end testing. To run the Cypress tests, use the following command:
+
+```sh
+
+npm run cypress:open
+```
+
+This will open the Cypress Test Runner. You can then select the test files you want to run.
+
+Please note that the application must be running locally for the Cypress tests to work.
