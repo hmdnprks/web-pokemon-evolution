@@ -28,7 +28,7 @@ export default function Profile() {
   const router = useRouter();
   const pokemon = getFromStorage('POKEMON_PROFILE') as PokemonItemResult;
 
-  const { data: pokemonDetailRes, isLoading } = usePokemonDetail(pokemon?.id);
+  const { data: pokemonDetailRes, isLoading: isLoadingPokemon } = usePokemonDetail(pokemon?.id);
   const pokemonDetail: PokemonStatsAPIResponse = pokemonDetailRes?.data;
   const nextEvolution: NextEvolution = pokemonDetail?.nextEvolution;
 
@@ -42,7 +42,7 @@ export default function Profile() {
   const [feedHistory, setFeedHistory] = useState<BerryItemResult[]>([]);
   const [weightHistory, setWeightHistory] = useState<number[]>([]);
 
-  const { data: berryList } = useBerryList();
+  const { data: berryList, isLoading: isLoadingBerries } = useBerryList();
   const berries: BerryItemResult[] = berryList?.results;
 
   const [selectedBerry, setSelectedBerry] = useState<BerryItemResult | null>(null);
@@ -119,12 +119,12 @@ export default function Profile() {
     <div className="flex flex-col h-screen bg-white py-10">
       <div className="overflow-auto mb-20">
         <header className="flex justify-center items-center px-4 gap-4">
-          {isLoading && (
+          {isLoadingPokemon && (
             <div className="w-32">
               <BasicSkeleton />
             </div>
           )}
-          {!isLoading && (
+          {!isLoadingPokemon && (
             <>
               <h1 className="text-2xl font-bold capitalize">{pokemon?.name}</h1>
               <button
@@ -136,12 +136,12 @@ export default function Profile() {
             </>
           )}
         </header>
-        {isLoading && (
+        {isLoadingPokemon && (
           <div className="p-8">
             <PokemonSkeleton />
           </div>
         )}
-        {!isLoading && (
+        {!isLoadingPokemon && (
           <div className="flex justify-center mt-4 space-x-2 items-center w-full overflow-hidden p-4">
             <img
               alt={pokemon?.name}
@@ -167,7 +167,7 @@ export default function Profile() {
             )}
           </div>
         )}
-        {!isLoading && nextEvolution && (
+        {!isLoadingPokemon && nextEvolution && (
           <div className="text-center mt-2">
             <p className="text-gray-500 text-sm">Next Evolution Weight</p>
             <div className="flex font-bold text-xl justify-center gap-1 mt-2">
@@ -197,7 +197,7 @@ export default function Profile() {
             </div>
           </div>
         )}
-        {!isLoading && !nextEvolution && (
+        {!isLoadingPokemon && !nextEvolution && (
           <div className="mx-auto p-4 bg-red-300 rounded-full text-white w-max flex justify-center items-center">
             <span>End of Evolution Chain</span>
           </div>
@@ -206,12 +206,12 @@ export default function Profile() {
           {Object.entries(pokemonStats).map(([key, value]) => (
             <div key={key}>
               <div className="text-gray-500 text-sm">{key}</div>
-              {isLoading && (
+              {isLoadingPokemon && (
                 <div className="w-12">
                   <BasicSkeleton />
                 </div>
               )}
-              {!isLoading && (
+              {!isLoadingPokemon && (
                 <div
                   className={`text-xl font-bold ${key === 'Weight' && 'flex justify-center'} gap-2`}
                 >
@@ -232,25 +232,27 @@ export default function Profile() {
           ))}
         </div>
         <div className="text-center mt-16 px-4">
-          {selectedBerry && (
-            <div className="flex justify-center items-center gap-4 mb-4">
-              <div>
-                <p className="text-gray-500 text-sm">Berries</p>
-                <p className="text-lg font-bold capitalize">{selectedBerry?.name}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Firmness</p>
-                <p className="text-lg font-bold capitalize">{selectedBerry?.firmness}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Weight</p>
-                <p className="text-lg font-bold capitalize text-orange-500">
-                  +{firmnessMap[selectedBerry?.firmness || 'others']}
-                </p>
-              </div>
+          <div className="flex justify-center items-center gap-4 mb-4">
+            <div>
+              <p className="text-gray-500 text-sm">Berries</p>
+              <p className="text-lg font-bold capitalize">{selectedBerry?.name || '-'}</p>
             </div>
-          )}
-          <BerryList berries={berries} setSelectedBerry={(item) => setSelectedBerry(item)} />
+            <div>
+              <p className="text-gray-500 text-sm">Firmness</p>
+              <p className="text-lg font-bold capitalize">{selectedBerry?.firmness || '-'}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm">Weight</p>
+              <p className={`text-lg font-bold capitalize ${selectedBerry && 'text-orange-500'}`}>
+                {selectedBerry ? `+${firmnessMap[selectedBerry?.firmness || 'others']}` : '-'}
+              </p>
+            </div>
+          </div>
+          <BerryList
+            berries={berries}
+            isLoading={isLoadingBerries}
+            setSelectedBerry={(item) => setSelectedBerry(item)}
+          />
         </div>
       </div>
 
