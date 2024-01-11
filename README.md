@@ -53,3 +53,29 @@ npm run cypress:open
 This will open the Cypress Test Runner. You can then select the test files you want to run.
 
 Please note that the application must be running locally for the Cypress tests to work.
+
+## Linting and Formatting
+
+This project uses ESLint and Prettier for linting and formatting. To run the linter, use the following command:
+
+```sh
+npm run lint
+```
+
+To run the linter and automatically fix any issues, use the following command:
+
+```sh
+npm run lint:fix
+```
+
+## Commit Hooks
+
+This project uses Husky to prevent bad `git commit`, `git push`, and more. Git messages are linted using commitlint. To commit your changes, use the following command:
+
+```sh
+npm run commit
+```
+
+## Live Demo
+
+A live demo of the application can be found at https://pokemon.hamdan.id/.
