@@ -1,5 +1,9 @@
 // jest.config.js
-module.exports = {
+const nextJest = require('next/jest');
+const createJestConfig = nextJest({ dir: './' });
+
+// Any custom config you want to pass to Jest
+const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
@@ -18,3 +22,5 @@ module.exports = {
     '!src/**/*.d.ts',
   ],
 };
+
+module.exports = createJestConfig(customJestConfig);
