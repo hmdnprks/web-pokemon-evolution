@@ -1,54 +1,81 @@
-import { PokemonSingleAPIResponse } from '@component/interfaces/pokemon';
+import {
+  PokemonSingleAPIResponse,
+  EvolutionData,
+  PokemonSpeciesAPIResponse,
+} from '@component/interfaces/pokemon';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const url = `${process.env.API_URL}/pokemon/${params.id}`;
-  const res = await fetch(url);
-  const data: PokemonSingleAPIResponse = await res.json();
+async function fetchJson<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
 
-  const guessChainEvolutionId = Math.ceil(Number(params.id) / 3);
-
-  const evolutionRes = await fetch(`${process.env.API_URL}/evolution-chain/${guessChainEvolutionId}`);
-  const dataEvolution = await evolutionRes.json();
-
-  let nextEvolution;
-  if (dataEvolution.chain.species.name === data.name) {
-    nextEvolution = {
-      name: dataEvolution.chain.evolves_to[0].species.name,
-      url: dataEvolution.chain.evolves_to[0].species.url,
-      id: dataEvolution.chain.evolves_to[0].species.url.split('/')[6],
-      imageUrl: {
-        small: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dataEvolution.chain.evolves_to[0].species.url.split('/')[6]}.png`,
-        large: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dataEvolution.chain.evolves_to[0].species.url.split('/')[6]}.png`
-      }
-    };
-  } else if (dataEvolution.chain.evolves_to[0].species.name === data.name) {
-    nextEvolution = {
-      name: dataEvolution.chain.evolves_to[0].evolves_to[0].species.name,
-      url: dataEvolution.chain.evolves_to[0].evolves_to[0].species.url,
-      id: dataEvolution.chain.evolves_to[0].evolves_to[0].species.url.split('/')[6],
-      imageUrl: {
-        small: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dataEvolution.chain.evolves_to[0].evolves_to[0].species.url.split('/')[6]}.png`,
-        large: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dataEvolution.chain.evolves_to[0].evolves_to[0].species.url.split('/')[6]}.png`
-      }
-    };
-  } else {
-    nextEvolution = null;
+function extractEvolutionData(evolutionNode: any): EvolutionData | null {
+  if (!evolutionNode) {
+    return null;
   }
 
-  const nextEvolutionRes = await fetch(`${process.env.API_URL}/pokemon/${nextEvolution?.id}`);
-  const nextEvolutionData: PokemonSingleAPIResponse = await nextEvolutionRes.json();
-
-  nextEvolution = {
-    ...nextEvolution,
+  const id = evolutionNode.species.url.split('/')[6];
+  return {
+    name: evolutionNode.species.name,
+    url: evolutionNode.species.url,
+    id: id,
+    imageUrl: {
+      small: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+      large: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+    },
     stats: {
-      hp: nextEvolutionData.stats[0].base_stat,
-      attack: nextEvolutionData.stats[1].base_stat,
-      defense: nextEvolutionData.stats[2].base_stat,
-      speed: nextEvolutionData.stats[5].base_stat,
-      weight: nextEvolutionData.weight,
-    }
+      hp: 0,
+      attack: 0,
+      defense: 0,
+      speed: 0,
+      weight: 0,
+    },
+  };
+}
+
+async function getNextEvolution(
+  currentName: string,
+  dataEvolution: any,
+): Promise<EvolutionData | null> {
+  let nextEvolutionNode = dataEvolution.chain;
+
+  while (nextEvolutionNode && nextEvolutionNode.species.name !== currentName) {
+    nextEvolutionNode = nextEvolutionNode.evolves_to[0];
+  }
+
+  const nextNode = nextEvolutionNode?.evolves_to[0];
+  if (!nextNode) {
+    return null;
+  }
+
+  const nextEvolution = extractEvolutionData(nextNode);
+  if (!nextEvolution) {
+    return null;
+  }
+
+  const nextEvolutionData: PokemonSingleAPIResponse = await fetchJson(
+    `${process.env.API_URL}/pokemon/${nextEvolution.id}`,
+  );
+  nextEvolution.stats = {
+    hp: nextEvolutionData.stats[0].base_stat,
+    attack: nextEvolutionData.stats[1].base_stat,
+    defense: nextEvolutionData.stats[2].base_stat,
+    speed: nextEvolutionData.stats[5].base_stat,
+    weight: nextEvolutionData.weight,
   };
 
+  return nextEvolution;
+}
+
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const data: PokemonSingleAPIResponse = await fetchJson(
+    `${process.env.API_URL}/pokemon/${params.id}`,
+  );
+  const dataSpecies: PokemonSpeciesAPIResponse = await fetchJson(data.species.url);
+  const dataEvolution = await fetchJson(dataSpecies.evolution_chain.url);
+
+  const nextEvolution = await getNextEvolution(data.name, dataEvolution);
 
   const pokemonData = {
     id: data.id,
@@ -60,7 +87,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       speed: data.stats[5].base_stat,
       weight: data.weight,
     },
-    nextEvolution
+    nextEvolution,
   };
 
   return Response.json({ data: pokemonData });

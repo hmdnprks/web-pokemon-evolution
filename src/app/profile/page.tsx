@@ -2,7 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getFromStorage, setToStorage } from '@component/hooks/usePersistedState';
-import { NextEvolution, PokemonItemResult, PokemonStatsAPIResponse } from '@component/interfaces/pokemon';
+import {
+  NextEvolution,
+  PokemonItemResult,
+  PokemonStatsAPIResponse,
+} from '@component/interfaces/pokemon';
 import { usePokemonDetail } from '@component/hooks/usePokemon';
 import { useBerryList } from '@component/hooks/useBerry';
 import { BerryItemResult } from '@component/interfaces/berry';
@@ -69,7 +73,7 @@ export default function Profile() {
     return () => {
       if (chevronTimeoutId) {
         clearTimeout(chevronTimeoutId);
-      };
+      }
     };
   }, []);
 
@@ -88,7 +92,6 @@ export default function Profile() {
       setFeedHistory([...feedHistory, selectedBerry]);
       setWeightHistory([...weightHistory, firmnessMap[selectedBerry.firmness]]);
 
-
       setShowChevronUp(true);
       const id = setTimeout(() => setShowChevronUp(false), 1000);
       setChevronTimeoutId(id as unknown as number);
@@ -100,7 +103,10 @@ export default function Profile() {
       <div className="overflow-auto mb-20">
         <header className="flex justify-center items-center px-4 gap-4">
           <h1 className="text-2xl font-bold capitalize">{pokemon?.name}</h1>
-          <button className="text-xl bg-red-200 rounded-full w-8 h-8 flex items-center justify-center" onClick={deletePokemon}>
+          <button
+            className="text-xl bg-red-200 rounded-full w-8 h-8 flex items-center justify-center"
+            onClick={deletePokemon}
+          >
             &times;
           </button>
         </header>
@@ -111,44 +117,74 @@ export default function Profile() {
             src={pokemon?.imageUrl.large}
           />
           {nextEvolution && (
-            <div>
-              <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
-            </div>
+            <>
+              <div>
+                <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
+              </div>
+              <div>
+                <img
+                  alt={nextEvolution?.name}
+                  className="w-28 h-28 object-cover opacity-50"
+                  src={nextEvolution?.imageUrl.large}
+                />
+                <p className="text-center text-gray-500 text-sm capitalize">
+                  {nextEvolution?.name}
+                </p>
+              </div>
+            </>
           )}
-          <div>
-            <img
-              alt={nextEvolution?.name}
-              className="w-28 h-28 object-cover opacity-50"
-              src={nextEvolution?.imageUrl.large}
-            />
-            <p className="text-center text-gray-500 text-sm capitalize">{nextEvolution?.name}</p>
-          </div>
-
         </div>
         {nextEvolution && (
           <div className="text-center mt-2">
             <p className="text-gray-500 text-sm">Next Evolution Weight</p>
             <div className="flex font-bold text-xl justify-center gap-1 mt-2">
-
               <p className="self-center">
                 <span className=" text-orange-500">{nextEvolution.stats.weight}</span>
-                <span className={`${nextEvolution.stats.weight - pokemonStats.Weight >= 0 ? 'text-red-600' : 'text-green-600 '} text-xs`}>
+                <span
+                  className={`${
+                    nextEvolution.stats.weight - pokemonStats.Weight >= 0
+                      ? 'text-red-600'
+                      : 'text-green-600 '
+                  } text-xs`}
+                >
                   &nbsp;({nextEvolution.stats.weight - pokemonStats.Weight <= 0 ? '+' : '-'}
-                  <CountUp duration={2} end={Math.abs(nextEvolution.stats.weight - pokemonStats.Weight)}
-                    start={weightHistory.length > 0 ? Math.abs(nextEvolution.stats.weight -
-                      pokemonStats.Weight) - weightHistory[weightHistory.length - 1] : 0} />)
+                  <CountUp
+                    duration={2}
+                    end={Math.abs(nextEvolution.stats.weight - pokemonStats.Weight)}
+                    start={
+                      weightHistory.length > 0
+                        ? Math.abs(nextEvolution.stats.weight - pokemonStats.Weight) -
+                          weightHistory[weightHistory.length - 1]
+                        : 0
+                    }
+                  />
+                  )
                 </span>
               </p>
             </div>
+          </div>
+        )}
+        {!nextEvolution && (
+          <div className="mx-auto p-4 bg-red-300 rounded-full text-white w-max flex justify-center items-center">
+            <span>End of Evolution Chain</span>
           </div>
         )}
         <div className="text-center mt-8 px-4 grid grid-cols-3 gap-3 justify-items-center">
           {Object.entries(pokemonStats).map(([key, value]) => (
             <div key={key}>
               <div className="text-gray-500 text-sm">{key}</div>
-              <div className={`text-xl font-bold ${key === 'Weight' && 'flex justify-center'} gap-2`}>
-                <CountUp duration={2} end={value} start={(key === 'Weight' && weightHistory.length > 0) ?
-                  (value - weightHistory[weightHistory.length - 1]) : 0} />
+              <div
+                className={`text-xl font-bold ${key === 'Weight' && 'flex justify-center'} gap-2`}
+              >
+                <CountUp
+                  duration={2}
+                  end={value}
+                  start={
+                    key === 'Weight' && weightHistory.length > 0
+                      ? value - weightHistory[weightHistory.length - 1]
+                      : 0
+                  }
+                />
                 {key === 'Weight' && showChevronUp && <ChevronAnimation arrow="up" />}
                 {key === 'Weight' && showChevronDown && <ChevronAnimation arrow="down" />}
               </div>
@@ -168,11 +204,13 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Weight</p>
-                <p className="text-lg font-bold capitalize text-orange-500">+{firmnessMap[selectedBerry?.firmness || 'others']}</p>
+                <p className="text-lg font-bold capitalize text-orange-500">
+                  +{firmnessMap[selectedBerry?.firmness || 'others']}
+                </p>
               </div>
             </div>
           )}
-          <BerryList berries={berries} setSelectedBerry={item => setSelectedBerry(item)} />
+          <BerryList berries={berries} setSelectedBerry={(item) => setSelectedBerry(item)} />
         </div>
       </div>
 
@@ -180,7 +218,8 @@ export default function Profile() {
         <button
           className="w-full disabled:bg-gray-300 bg-green-800 text-white py-2 rounded-full"
           disabled={!selectedBerry}
-          onClick={() => feedPokemon()}>
+          onClick={() => feedPokemon()}
+        >
           Feed Pokemon
         </button>
       </div>

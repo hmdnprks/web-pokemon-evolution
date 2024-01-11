@@ -1,8 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-const fetchPokemonList = async () => {
-  const { data } = await axios.get('/api/pokemon');
+const fetchPokemonList = async (searchTerm: string) => {
+  const { data } = await axios.get('/api/pokemon', {
+    params: {
+      keyword: searchTerm,
+    },
+  });
   return data;
 };
 
@@ -11,8 +15,11 @@ const fetchPokemonDetail = async (id: string) => {
   return data;
 };
 
-export const usePokemonList = () => {
-  return useQuery({ queryKey: ['pokemonList'], queryFn: fetchPokemonList });
+export const usePokemonList = (searchTerm: string) => {
+  return useQuery({
+    queryKey: ['pokemonList', searchTerm],
+    queryFn: () => fetchPokemonList(searchTerm),
+  });
 };
 
 export const usePokemonDetail = (id: string) => {
