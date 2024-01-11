@@ -48,9 +48,9 @@ export default function Home() {
   return (
     <main className="flex flex-col h-screen">
       <div className="flex justify-center p-5">
-        <SearchPokemon onSearch={handleSearch} />
+        <SearchPokemon clearSearch={() => setSearchTerm('')} onSearch={handleSearch} />
       </div>
-      <div className="flex-grow overflow-auto mt-2 p-5">
+      <div className="flex-grow overflow-auto mt-2 p-5 pb-20">
         {isLoading ? (
           <GridSkeleton />
         ) : errorAxios ? (

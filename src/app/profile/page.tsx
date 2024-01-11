@@ -198,7 +198,7 @@ export default function Profile() {
           </div>
         )}
         {!isLoadingPokemon && !nextEvolution && (
-          <div className="mx-auto p-4 bg-red-300 rounded-full text-white w-max flex justify-center items-center">
+          <div className="mx-auto p-4 py-2 bg-red-300 rounded-full text-white w-max flex justify-center items-center">
             <span>End of Evolution Chain</span>
           </div>
         )}

@@ -1,4 +1,3 @@
-// BerryList.tsx
 import React, { useState } from 'react';
 import { BerryItemResult } from '@component/interfaces/berry';
 
