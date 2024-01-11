@@ -98,43 +98,76 @@ export default function Profile() {
     }
   };
 
+  const BasicSkeleton = () => {
+    return (
+      <div className="animate-pulse p-1 overflow-hidden">
+        <div className="h-6 bg-gray-300 rounded" />
+      </div>
+    );
+  };
+
+  const PokemonSkeleton = () => {
+    return (
+      <div className="animate-pulse p-2 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-gray-300 h-48 w-full" />
+        <div className="h-6 bg-gray-300 rounded mt-2 w-3/4 mx-auto" />
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen bg-white py-10">
       <div className="overflow-auto mb-20">
         <header className="flex justify-center items-center px-4 gap-4">
-          <h1 className="text-2xl font-bold capitalize">{pokemon?.name}</h1>
-          <button
-            className="text-xl bg-red-200 rounded-full w-8 h-8 flex items-center justify-center"
-            onClick={deletePokemon}
-          >
-            &times;
-          </button>
-        </header>
-        <div className="flex justify-center mt-4 space-x-2 items-center w-full overflow-hidden p-4">
-          <img
-            alt={pokemon?.name}
-            className="w-48 h-48 object-cover"
-            src={pokemon?.imageUrl.large}
-          />
-          {nextEvolution && (
+          {isLoading && (
+            <div className="w-32">
+              <BasicSkeleton />
+            </div>
+          )}
+          {!isLoading && (
             <>
-              <div>
-                <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
-              </div>
-              <div>
-                <img
-                  alt={nextEvolution?.name}
-                  className="w-28 h-28 object-cover opacity-50"
-                  src={nextEvolution?.imageUrl.large}
-                />
-                <p className="text-center text-gray-500 text-sm capitalize">
-                  {nextEvolution?.name}
-                </p>
-              </div>
+              <h1 className="text-2xl font-bold capitalize">{pokemon?.name}</h1>
+              <button
+                className="text-xl bg-red-200 rounded-full w-8 h-8 flex items-center justify-center"
+                onClick={deletePokemon}
+              >
+                &times;
+              </button>
             </>
           )}
-        </div>
-        {nextEvolution && (
+        </header>
+        {isLoading && (
+          <div className="p-8">
+            <PokemonSkeleton />
+          </div>
+        )}
+        {!isLoading && (
+          <div className="flex justify-center mt-4 space-x-2 items-center w-full overflow-hidden p-4">
+            <img
+              alt={pokemon?.name}
+              className="w-48 h-48 object-cover"
+              src={pokemon?.imageUrl.large}
+            />
+            {nextEvolution && (
+              <>
+                <div>
+                  <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
+                </div>
+                <div>
+                  <img
+                    alt={nextEvolution?.name}
+                    className="w-28 h-28 object-cover opacity-50"
+                    src={nextEvolution?.imageUrl.large}
+                  />
+                  <p className="text-center text-gray-500 text-sm capitalize">
+                    {nextEvolution?.name}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        {!isLoading && nextEvolution && (
           <div className="text-center mt-2">
             <p className="text-gray-500 text-sm">Next Evolution Weight</p>
             <div className="flex font-bold text-xl justify-center gap-1 mt-2">
@@ -164,7 +197,7 @@ export default function Profile() {
             </div>
           </div>
         )}
-        {!nextEvolution && (
+        {!isLoading && !nextEvolution && (
           <div className="mx-auto p-4 bg-red-300 rounded-full text-white w-max flex justify-center items-center">
             <span>End of Evolution Chain</span>
           </div>
@@ -173,21 +206,28 @@ export default function Profile() {
           {Object.entries(pokemonStats).map(([key, value]) => (
             <div key={key}>
               <div className="text-gray-500 text-sm">{key}</div>
-              <div
-                className={`text-xl font-bold ${key === 'Weight' && 'flex justify-center'} gap-2`}
-              >
-                <CountUp
-                  duration={2}
-                  end={value}
-                  start={
-                    key === 'Weight' && weightHistory.length > 0
-                      ? value - weightHistory[weightHistory.length - 1]
-                      : 0
-                  }
-                />
-                {key === 'Weight' && showChevronUp && <ChevronAnimation arrow="up" />}
-                {key === 'Weight' && showChevronDown && <ChevronAnimation arrow="down" />}
-              </div>
+              {isLoading && (
+                <div className="w-12">
+                  <BasicSkeleton />
+                </div>
+              )}
+              {!isLoading && (
+                <div
+                  className={`text-xl font-bold ${key === 'Weight' && 'flex justify-center'} gap-2`}
+                >
+                  <CountUp
+                    duration={2}
+                    end={value}
+                    start={
+                      key === 'Weight' && weightHistory.length > 0
+                        ? value - weightHistory[weightHistory.length - 1]
+                        : 0
+                    }
+                  />
+                  {key === 'Weight' && showChevronUp && <ChevronAnimation arrow="up" />}
+                  {key === 'Weight' && showChevronDown && <ChevronAnimation arrow="down" />}
+                </div>
+              )}
             </div>
           ))}
         </div>

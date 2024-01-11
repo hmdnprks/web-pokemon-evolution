@@ -61,9 +61,9 @@ export default function Home() {
           <PokemonList pokemons={pokemonList?.results} setPokemon={setPokemon} />
         )}
       </div>
-      <div className="bg-white w-full h-1/5">
+      <div className="bg-white w-full fixed bottom-0 h-20 flex justify-center items-center">
         <button
-          className="bg-green-800 disabled:bg-gray-300 text-white rounded-full p-3 m-5 fixed bottom-4 left-0 right-0 mx-auto w-11/12 max-w-md"
+          className="bg-green-800 disabled:bg-gray-300 text-white rounded-full p-3 mx-4 w-full max-w-md"
           disabled={!pokemon}
           onClick={() => pokemon && handleChoosePokemon(pokemon)}
         >
