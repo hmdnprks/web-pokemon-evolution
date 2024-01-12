@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/hmdnprks/web-pokemon-evolution/graph/badge.svg?token=I135R5PU6P)](https://codecov.io/gh/hmdnprks/web-pokemon-evolution)
+
 # Project Setup Guide
 
 This guide will help you set up the project, run the application, and execute tests.
