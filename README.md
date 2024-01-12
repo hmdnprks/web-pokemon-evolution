@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/hmdnprks/web-pokemon-evolution/graph/badge.svg?token=I135R5PU6P)](https://codecov.io/gh/hmdnprks/web-pokemon-evolution)
+[![codecov](https://codecov.io/gh/hmdnprks/web-pokemon-evolution/graph/badge.svg?token=I135R5PU6P)](https://codecov.io/gh/hmdnprks/web-pokemon-evolution) ![vercel](https://vercelbadge.vercel.app/api/hmdnprks/web-pokemon-evolution?style=for-the-badge)
 
 # Project Setup Guide
 
