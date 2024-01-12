@@ -1,4 +1,4 @@
-name: Codecov
+name: SonarQube Scan
 on: [push, pull_request]
 jobs:
   build:
@@ -12,8 +12,8 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run tests with coverage
-        run: npm run test
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        run: npm run test:ci
+      - name: Run SonarQube Scanner
+        uses: SonarSource/sonarcloud-github-action@master
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
