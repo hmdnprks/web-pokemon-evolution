@@ -15,5 +15,9 @@ jobs:
         run: npm run test:ci
       - name: Run SonarQube Scanner
         uses: SonarSource/sonarcloud-github-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=hmdnprks_web-pokemon-evolution
+            -Dsonar.organization=hmdnprks
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
