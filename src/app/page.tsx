@@ -1,21 +1,29 @@
 'use client';
 import SearchPokemon from '../components/Search/Search';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePokemonList } from '../hooks/usePokemon';
 import PokemonList from '@component/components/PokemonList/PokemonList';
 import { PokemonItemResult } from '@component/interfaces/pokemon';
 import { getFromStorage, setToStorage } from '@component/hooks/usePersistedState';
 import { useRouter } from 'next/navigation';
-import Skeleton from '@component/components/Skeletion/Skeleton';
 import { AxiosError } from 'axios';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const observer = useRef<IntersectionObserver | null>(null);
 
+  const [pokemonData, setPokemonData] = useState<PokemonItemResult[]>([]);
   const [pokemon, setPokemon] = useState<PokemonItemResult | null>(null);
+  const [offset, setOffset] = useState(0);
+  const limit = 20;
 
-  const { data: pokemonList, isLoading, error } = usePokemonList(searchTerm);
+  const {
+    data: pokemonList,
+    isLoading,
+    error,
+    isFetched,
+  } = usePokemonList(searchTerm, limit, offset);
 
   const errorAxios = error as AxiosError;
 
@@ -25,24 +33,45 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (isFetched) {
+      setPokemonData((prevState) => [...prevState, ...pokemonList?.results]);
+    }
+  }, [isFetched, pokemonList?.results]);
+
+  useEffect(() => {
     const storedPokemon = getFromStorage('POKEMON_PROFILE');
     if (storedPokemon) {
       router.push('/profile');
     }
   }, []);
 
+  const lastPokemonElementRef = useCallback(
+    (node: any) => {
+      if (isLoading) {
+        return;
+      }
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          loadMorePokemons();
+        }
+      });
+      if (node) {
+        observer.current.observe(node);
+      }
+    },
+    [isLoading],
+  );
+
   const handleSearch = (searchTerm: string) => {
     setSearchTerm(searchTerm);
+    setOffset(0);
   };
 
-  const GridSkeleton = () => {
-    return (
-      <div className="grid lg:grid-cols-4 grid-cols-3 gap-4">
-        {Array.from(Array(18).keys()).map((_, index) => (
-          <Skeleton key={`skeleton-${index}`} />
-        ))}
-      </div>
-    );
+  const loadMorePokemons = () => {
+    setOffset((prevOffset) => prevOffset + limit);
   };
 
   return (
@@ -51,14 +80,17 @@ export default function Home() {
         <SearchPokemon clearSearch={() => setSearchTerm('')} onSearch={handleSearch} />
       </div>
       <div className="flex-grow overflow-auto mt-2 p-5 pb-20">
-        {isLoading ? (
-          <GridSkeleton />
-        ) : errorAxios ? (
+        {errorAxios ? (
           <p>
             {errorAxios.response?.status === 404 ? 'Pokemon not found' : 'Something went wrong'}
           </p>
         ) : (
-          <PokemonList pokemons={pokemonList?.results} setPokemon={setPokemon} />
+          <PokemonList
+            isLoading={isLoading}
+            lastPokemonElementRef={lastPokemonElementRef}
+            pokemons={pokemonData}
+            setPokemon={setPokemon}
+          />
         )}
       </div>
       <div className="bg-white w-full fixed bottom-0 h-20 flex justify-center items-center">

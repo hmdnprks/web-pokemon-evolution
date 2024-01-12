@@ -65,8 +65,11 @@ export async function GET(request: Request) {
           ...pokemon,
           id: pokemonId,
           imageUrl: {
+            gif: pokemonData.sprites.versions?.['generation-v']?.['black-white'].animated
+              .front_default,
             small: pokemonData.sprites.front_default,
             large: pokemonData.sprites.other['official-artwork'].front_default,
+            shiny: pokemonData.sprites.other['home'].front_default,
           },
         };
       }),

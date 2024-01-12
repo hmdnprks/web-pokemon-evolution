@@ -1,16 +1,18 @@
+import React, { useState } from 'react';
 import { PokemonItemResult } from '@component/interfaces/pokemon';
-import { useState } from 'react';
+import Skeleton from '../Skeletion/Skeleton';
 
-// PokemonCard.tsx
 interface PokemonCardProps {
   pokemon: PokemonItemResult;
   onSelect: (pokemon: PokemonItemResult) => void;
-  isSelected?: boolean;
+  isSelected: boolean;
 }
 
 interface PokemonListProps {
   pokemons: PokemonItemResult[];
   setPokemon: (pokemon: PokemonItemResult) => void;
+  lastPokemonElementRef: any;
+  isLoading: boolean;
 }
 
 const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onSelect, isSelected }) => (
@@ -27,7 +29,22 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onSelect, isSelected
   </div>
 );
 
-const PokemonList: React.FC<PokemonListProps> = ({ pokemons, setPokemon }) => {
+const GridSkeleton = () => {
+  return (
+    <>
+      {Array.from(Array(18).keys()).map((_, index) => {
+        return <Skeleton key={`skeleton-${index}`} />;
+      })}
+    </>
+  );
+};
+
+const PokemonList: React.FC<PokemonListProps> = ({
+  pokemons,
+  setPokemon,
+  lastPokemonElementRef,
+  isLoading,
+}) => {
   const [selectedPokemon, setSelectedPokemon] = useState<PokemonItemResult | null>(null);
 
   const handleSelectPokemon = (pokemon: PokemonItemResult) => {
@@ -35,20 +52,18 @@ const PokemonList: React.FC<PokemonListProps> = ({ pokemons, setPokemon }) => {
     setPokemon(pokemon);
   };
 
-  if (!pokemons) {
-    return null;
-  }
-
   return (
     <div className="grid lg:grid-cols-4 grid-cols-3 gap-4">
-      {pokemons.map((pokemon) => (
-        <PokemonCard
-          isSelected={selectedPokemon?.id === pokemon.id}
-          key={pokemon.id}
-          onSelect={handleSelectPokemon}
-          pokemon={pokemon}
-        />
+      {pokemons.map((pokemon, index) => (
+        <div key={pokemon.id} ref={pokemons.length === index + 1 ? lastPokemonElementRef : null}>
+          <PokemonCard
+            isSelected={selectedPokemon?.id === pokemon.id}
+            onSelect={handleSelectPokemon}
+            pokemon={pokemon}
+          />
+        </div>
       ))}
+      {isLoading && <GridSkeleton />}
     </div>
   );
 };
