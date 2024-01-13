@@ -24,11 +24,19 @@ interface PokemonStats {
   Weight: number;
 }
 
+interface BerryItem extends BerryItemResult {
+  weight: number;
+}
+
 export default function Profile() {
   const router = useRouter();
-  const pokemon = getFromStorage('POKEMON_PROFILE') as PokemonItemResult;
+  const [pokemon, setPokemon] = useState<PokemonItemResult | null>(
+    getFromStorage('POKEMON_PROFILE'),
+  );
 
-  const { data: pokemonDetailRes, isLoading: isLoadingPokemon } = usePokemonDetail(pokemon?.id);
+  const { data: pokemonDetailRes, isLoading: isLoadingPokemon } = usePokemonDetail(
+    pokemon?.id || '',
+  );
   const pokemonDetail: PokemonStatsAPIResponse = pokemonDetailRes?.data;
   const nextEvolution: NextEvolution = pokemonDetail?.nextEvolution;
 
@@ -39,17 +47,17 @@ export default function Profile() {
     Speed: 0,
     Weight: 0,
   });
-  const [feedHistory, setFeedHistory] = useState<BerryItemResult[]>([]);
+  const [feedHistory, setFeedHistory] = useState<BerryItem[]>([]);
   const [weightHistory, setWeightHistory] = useState<number[]>([]);
 
   const { data: berryList, isLoading: isLoadingBerries } = useBerryList();
   const berries: BerryItemResult[] = berryList?.results;
 
   const [selectedBerry, setSelectedBerry] = useState<BerryItemResult | null>(null);
-
   const [showChevronUp, setShowChevronUp] = useState(false);
   const [showChevronDown, setShowChevronDown] = useState(false);
   const [chevronTimeoutId, setChevronTimeoutId] = useState<number | null>(null);
+  const [fadeOutComplete, setFadeOutComplete] = useState(false);
 
   useEffect(() => {
     if (!pokemon) {
@@ -66,6 +74,7 @@ export default function Profile() {
         Speed: pokemonDetail?.stats.speed,
         Weight: pokemonDetail?.stats.weight,
       });
+      setWeightHistory([pokemonDetail?.stats.weight]);
     }
   }, [pokemonDetail]);
 
@@ -89,13 +98,30 @@ export default function Profile() {
         ...pokemonStats,
         Weight: newWeight,
       });
-      setFeedHistory([...feedHistory, selectedBerry]);
-      setWeightHistory([...weightHistory, firmnessMap[selectedBerry.firmness]]);
+      setFeedHistory([
+        ...feedHistory,
+        {
+          ...selectedBerry,
+          weight: firmnessMap[selectedBerry.firmness],
+        },
+      ]);
+      setWeightHistory([...weightHistory, newWeight]);
 
       setShowChevronUp(true);
       const id = setTimeout(() => setShowChevronUp(false), 1000);
       setChevronTimeoutId(id as unknown as number);
     }
+  };
+
+  const handleFadeOutAnimationEnd = () => {
+    setFadeOutComplete(true);
+  };
+
+  const handleNextEvolutionChange = () => {
+    setToStorage('POKEMON_PROFILE', nextEvolution);
+    setPokemon(nextEvolution);
+    setWeightHistory([pokemonStats.Weight]);
+    setFeedHistory([]);
   };
 
   const BasicSkeleton = () => {
@@ -117,7 +143,7 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col h-screen bg-white py-10">
-      <div className="overflow-auto mb-20">
+      <div>
         <header className="flex justify-center items-center px-4 gap-4">
           {isLoadingPokemon && (
             <div className="w-32">
@@ -143,20 +169,25 @@ export default function Profile() {
         )}
         {!isLoadingPokemon && (
           <div className="flex justify-center mt-4 space-x-2 items-center w-full overflow-hidden p-4">
-            <img
-              alt={pokemon?.name}
-              className="w-48 h-48 object-cover"
-              src={pokemon?.imageUrl.large}
-            />
+            {!fadeOutComplete && (
+              <img
+                alt={pokemon?.name}
+                className={`w-48 h-48 object-cover`}
+                onAnimationEnd={handleFadeOutAnimationEnd}
+                src={pokemon?.imageUrl.large}
+              />
+            )}
             {nextEvolution && (
               <>
-                <div>
-                  <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
-                </div>
+                {!fadeOutComplete && (
+                  <div>
+                    <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
+                  </div>
+                )}
                 <div>
                   <img
                     alt={nextEvolution?.name}
-                    className="w-28 h-28 object-cover opacity-50"
+                    className="w-28 h-28 object-cover"
                     src={nextEvolution?.imageUrl.large}
                   />
                   <p className="text-center text-gray-500 text-sm capitalize">
@@ -184,17 +215,22 @@ export default function Profile() {
                   <CountUp
                     duration={2}
                     end={Math.abs(nextEvolution.stats.weight - pokemonStats.Weight)}
-                    start={
-                      weightHistory.length > 0
-                        ? Math.abs(nextEvolution.stats.weight - pokemonStats.Weight) -
-                          weightHistory[weightHistory.length - 1]
-                        : 0
-                    }
+                    start={Math.abs(
+                      nextEvolution.stats.weight - weightHistory[weightHistory.length - 2],
+                    )}
                   />
                   )
                 </span>
               </p>
             </div>
+            {nextEvolution.stats.weight - pokemonStats.Weight <= 0 && (
+              <button
+                className="px-3 py-2 rounded-full bg-orange-500 text-white mt-2 font-bold w-1/3"
+                onClick={handleNextEvolutionChange}
+              >
+                Evolve
+              </button>
+            )}
           </div>
         )}
         {!isLoadingPokemon && !nextEvolution && (
@@ -219,8 +255,8 @@ export default function Profile() {
                     duration={2}
                     end={value}
                     start={
-                      key === 'Weight' && weightHistory.length > 0
-                        ? value - weightHistory[weightHistory.length - 1]
+                      key === 'Weight' && feedHistory.length > 0
+                        ? value - feedHistory[feedHistory.length - 1].weight
                         : 0
                     }
                   />
@@ -256,7 +292,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="fixed bottom-8 left-0 w-full px-4 py-2">
+      <div className="w-full px-4 py-2 mt-8">
         <button
           className="w-full disabled:bg-gray-300 bg-green-800 text-white py-2 rounded-full"
           disabled={!selectedBerry}
