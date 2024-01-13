@@ -16,7 +16,7 @@ on:
       - main
 
 jobs:
-  Deploy-Preview:
+  Deploy-Production:
     runs-on: ubuntu-latest
     outputs:
       deployment-url: ${{ steps.deploy.outputs.deployment-url }}
@@ -56,17 +56,20 @@ jobs:
 
       # Deploy to Vercel and capture deployment URL
       - name: Deploy Project Artifacts to Vercel
-        id: deploy
-        run: |
-          VERCEL_OUTPUT=$(vercel deploy --prebuilt --prod --json --token=$VERCEL_TOKEN)
-          DEPLOYMENT_URL=$(echo $VERCEL_OUTPUT | jq -r '.url')
-          echo "::set-output name=deployment-url::$DEPLOYMENT_URL"
+        if: success()
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
+
+      - name: Extract Deployment URL
+        if: success()
+        id: extract-url
+        run: echo "::set-output name=deployment-url::$(tail -1 deployment-url.txt)"
 
       # Send success or failure notification to Telegram
       - name: Send Success Notification
         if: success()
         run: |
-          MESSAGE="✅ Build succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: ${{ steps.deploy.outputs.deployment-url }}"
+          DEPLOYMENT_URL=${{ steps.extract-url.outputs.deployment-url }}
+          MESSAGE="✅ Build succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: $DEPLOYMENT_URL"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
 
       - name: Send Failure Notification
