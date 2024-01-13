@@ -2,29 +2,47 @@ name: Vercel Production Deployment
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NODE_VERSION: '20'
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
 on:
   push:
     branches:
       - main
+
 jobs:
-  Deploy-Production:
+  Deploy-Preview:
     runs-on: ubuntu-latest
+    outputs:
+      deployment-url: ${{ steps.deploy.outputs.deployment-url }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Install dependencies
         run: npm install
+
       - name: Run tests with coverage
         run: npm run test:ci
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ env.CODECOV_TOKEN }}
+
+      # Run SonarQube analysis
       - name: Run SonarQube Scanner
         uses: SonarSource/sonarcloud-github-action@master
         with:
@@ -32,32 +50,27 @@ jobs:
             -Dsonar.projectKey=hmdnprks_web-pokemon-evolution
             -Dsonar.organization=hmdnprks
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.login=${{ env.SONAR_TOKEN }}
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.config.js,**/*.config.ts,**/*.setup.js,cypress/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Deploy to Vercel and capture deployment URL
       - name: Deploy Project Artifacts to Vercel
-        if: success()
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        id: deploy
+        run: |
+          VERCEL_OUTPUT=$(vercel deploy --prebuilt --prod --json --token=$VERCEL_TOKEN)
+          DEPLOYMENT_URL=$(echo $VERCEL_OUTPUT | jq -r '.url')
+          echo "::set-output name=deployment-url::$DEPLOYMENT_URL"
+
+      # Send success or failure notification to Telegram
       - name: Send Success Notification
         if: success()
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          MESSAGE="✅ Build succeeded for ${{ github.repository }} at ${{ github.sha }}"
+          MESSAGE="✅ Build succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: ${{ steps.deploy.outputs.deployment-url }}"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
+
       - name: Send Failure Notification
         if: failure()
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           MESSAGE="❌ Build failed for ${{ github.repository }} at ${{ github.sha }}"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
