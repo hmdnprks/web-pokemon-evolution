@@ -73,11 +73,12 @@ jobs:
         if: success()
         run: |
           DEPLOYMENT_URL=${{ steps.extract-url.outputs.deployment-url }}
-          MESSAGE="✅🔥 Production deployment succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: $DEPLOYMENT_URL"
+          MESSAGE="✅🚀 Production deployment succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: $DEPLOYMENT_URL"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
 
       - name: Send Failure Notification
         if: failure()
         run: |
-          MESSAGE="❌ Production deployment failed for ${{ github.repository }} at ${{ github.sha }}"
+          GITHUB_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          MESSAGE="❌ Production deployment failed for ${{ github.repository }} at ${{ github.sha }}. Check details: $GITHUB_RUN_URL"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
