@@ -20,6 +20,7 @@ const customJestConfig = {
     '!**/node_modules/**',
     '!**/vendor/**',
     '!src/**/*.d.ts',
+    '!src/**/*.cy.tsx',
   ],
 };
 
