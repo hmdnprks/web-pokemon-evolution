@@ -20,14 +20,16 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "types": ["jest", "@testing-library/jest-dom"]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/components/BerryList/BerryList.spec."
+    "src/components/BerryList/BerryList.spec.",
+    "jest.config.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "./cypress.config.ts", "cypress", "**/*.cy.tsx"]
 }
