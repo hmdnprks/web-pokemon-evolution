@@ -37,23 +37,9 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:ci
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ env.CODECOV_TOKEN }}
-
-      # Run SonarQube analysis
-      - name: Run SonarQube Scanner
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.projectKey=hmdnprks_web-pokemon-evolution
-            -Dsonar.organization=hmdnprks
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ env.SONAR_TOKEN }}
-
       # Deploy to Vercel and capture deployment URL
       - name: Pull Vercel Environment Information
+        if: success()
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}

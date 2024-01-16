@@ -1,0 +1,7 @@
+codecov:
+  ignore:
+    - "**/*.spec.ts"
+    - "**/*.config.js"
+    - "**/*.config.ts"
+    - "**/*.setup.js"
+    - "cypress/**"
