@@ -31,11 +31,11 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onSelect, isSelected
 
 const GridSkeleton = () => {
   return (
-    <>
+    <div data-testid="grid-skeleton">
       {Array.from(Array(18).keys()).map((_, index) => {
         return <Skeleton key={`skeleton-${index}`} />;
       })}
-    </>
+    </div>
   );
 };
 
