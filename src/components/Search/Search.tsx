@@ -26,6 +26,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ onSearch, clearSearch
         onChange={(e) => setSearchTerm(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Search Pokémon name or ID"
+        role="textbox"
         type="text"
         value={searchTerm}
       />
@@ -33,6 +34,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ onSearch, clearSearch
         <button
           className="absolute right-6 top-5 mt-0 mr-0 text-red-400"
           onClick={handleClearClick}
+          role="button"
         >
           <img alt="close" className="w-5 h-5" src="/close.svg" />
         </button>
