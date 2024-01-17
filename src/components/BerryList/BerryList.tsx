@@ -16,7 +16,10 @@ const BerryList: React.FC<BerryListProps> = ({ berries, setSelectedBerry, isLoad
   };
 
   const BerrySkeleton = () => (
-    <div className="flex overflow-x-auto gap-2 p-2 rounded-full border">
+    <div
+      className="flex overflow-x-auto gap-2 p-2 rounded-full border"
+      data-testid="berry-list-loading-skeleton"
+    >
       {Array.from(Array(10).keys()).map((i) => (
         <div
           className="flex-none mx-2 p-1 rounded-full animate-pulse bg-gray-300 w-10 h-10"
@@ -47,6 +50,8 @@ const BerryList: React.FC<BerryListProps> = ({ berries, setSelectedBerry, isLoad
         ))}
       </div>
     );
+  } else {
+    return <div>No berries available</div>;
   }
 };
 
