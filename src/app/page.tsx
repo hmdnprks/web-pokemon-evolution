@@ -32,11 +32,21 @@ export default function Home() {
     router.push('/profile');
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setPokemonData([]);
+    setOffset(0);
+  };
+
   useEffect(() => {
     if (isFetched) {
-      setPokemonData((prevState) => [...prevState, ...pokemonList?.results]);
+      if (searchTerm) {
+        setPokemonData(pokemonList?.results || []);
+      } else {
+        setPokemonData((prevState) => [...prevState, ...(pokemonList?.results || [])]);
+      }
     }
-  }, [isFetched, pokemonList?.results]);
+  }, [isFetched, pokemonList?.results, searchTerm]);
 
   useEffect(() => {
     const storedPokemon = getFromStorage('POKEMON_PROFILE');
@@ -47,7 +57,7 @@ export default function Home() {
 
   const lastPokemonElementRef = useCallback(
     (node: any) => {
-      if (isLoading) {
+      if (isLoading || searchTerm) {
         return;
       }
       if (observer.current) {
@@ -62,7 +72,7 @@ export default function Home() {
         observer.current.observe(node);
       }
     },
-    [isLoading],
+    [isLoading, searchTerm],
   );
 
   const handleSearch = (searchTerm: string) => {
@@ -77,7 +87,7 @@ export default function Home() {
   return (
     <main className="flex flex-col h-screen">
       <div className="flex justify-center p-5">
-        <SearchPokemon clearSearch={() => setSearchTerm('')} onSearch={handleSearch} />
+        <SearchPokemon clearSearch={handleClearSearch} onSearch={handleSearch} />
       </div>
       <div className="flex-grow overflow-auto mt-2 p-5 pb-20">
         {errorAxios ? (
