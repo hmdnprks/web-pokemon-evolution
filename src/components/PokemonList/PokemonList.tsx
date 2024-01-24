@@ -31,11 +31,11 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onSelect, isSelected
 
 const GridSkeleton = () => {
   return (
-    <div data-testid="grid-skeleton">
+    <>
       {Array.from(Array(18).keys()).map((_, index) => {
         return <Skeleton key={`skeleton-${index}`} />;
       })}
-    </div>
+    </>
   );
 };
 
@@ -53,7 +53,10 @@ const PokemonList: React.FC<PokemonListProps> = ({
   };
 
   return (
-    <div className="grid lg:grid-cols-4 grid-cols-3 gap-4">
+    <div
+      className="grid lg:grid-cols-4 grid-cols-3 gap-4"
+      data-testid={isLoading && 'grid-skeleton'}
+    >
       {pokemons.map((pokemon, index) => (
         <div key={pokemon.id} ref={pokemons.length === index + 1 ? lastPokemonElementRef : null}>
           <PokemonCard
