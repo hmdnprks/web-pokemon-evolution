@@ -14,7 +14,8 @@
     "test:ci": "jest --ci --coverage",
     "test:clear-cache": "jest --clearCache",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "commit": "cz"
   },
   "dependencies": {
     "@sentry/nextjs": "^7.93.0",
@@ -43,7 +44,9 @@
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "babel-jest": "^29.7.0",
+    "commitizen": "^4.3.0",
     "cypress": "^13.6.2",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "eslint-config-prettier": "^9.1.0",
@@ -64,5 +67,10 @@
   "lint-staged": {
     "*.{js,ts,tsx}": "eslint --fix",
     "*.{js,ts,tsx,css,md,html,json}": "prettier --cache --write"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
