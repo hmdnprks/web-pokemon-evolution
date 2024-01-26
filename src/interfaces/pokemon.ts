@@ -115,7 +115,8 @@ export interface PokemonStatsAPIResponse {
   id: string;
   name: string;
   stats: PokemonStats;
-  nextEvolution: NextEvolution;
+  nextEvolution?: NextEvolution;
+  nextEvolutions: NextEvolution[];
 }
 
 export interface NextEvolution extends EvolutionData {}

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,6 +16,7 @@ import { firmnessMap } from '@component/constants/berry-weight';
 import CountUp from 'react-countup';
 import ChevronAnimation from '@component/components/ChevronAnimation/ChevronAnimation';
 import { clearTimeout } from 'timers';
+import { useSwipeable } from 'react-swipeable';
 
 interface PokemonStats {
   HP: number;
@@ -38,7 +40,6 @@ export default function Profile() {
     pokemon?.id || '',
   );
   const pokemonDetail: PokemonStatsAPIResponse = pokemonDetailRes?.data;
-  const nextEvolution: NextEvolution = pokemonDetail?.nextEvolution;
 
   const [pokemonStats, setPokemonStats] = useState<PokemonStats>({
     HP: 0,
@@ -58,6 +59,10 @@ export default function Profile() {
   const [showChevronDown, setShowChevronDown] = useState(false);
   const [chevronTimeoutId, setChevronTimeoutId] = useState<number | null>(null);
   const [fadeOutComplete, setFadeOutComplete] = useState(false);
+
+  const [nextEvolutions, setNextEvolutions] = useState<NextEvolution[]>([]);
+  const [selectedEvolutionIndex, setSelectedEvolutionIndex] = useState<number>(0);
+  const [lockEvolution, setLockEvolution] = useState(false);
 
   useEffect(() => {
     if (!pokemon) {
@@ -86,13 +91,20 @@ export default function Profile() {
     };
   }, []);
 
+  useEffect(() => {
+    // Assuming pokemonDetail.nextEvolutions is an array of evolutions
+    if (pokemonDetail && pokemonDetail.nextEvolutions) {
+      setNextEvolutions(pokemonDetail.nextEvolutions);
+    }
+  }, [pokemonDetail]);
+
   const deletePokemon = () => {
     setToStorage('POKEMON_PROFILE', null);
     router.push('/');
   };
 
   const feedPokemon = () => {
-    if (selectedBerry) {
+    if (selectedBerry && isEvolutionSelected()) {
       const newWeight = pokemonStats.Weight + firmnessMap[selectedBerry.firmness];
       setPokemonStats({
         ...pokemonStats,
@@ -118,11 +130,30 @@ export default function Profile() {
   };
 
   const handleNextEvolutionChange = () => {
-    setToStorage('POKEMON_PROFILE', nextEvolution);
-    setPokemon(nextEvolution);
+    setToStorage('POKEMON_PROFILE', nextEvolutions[selectedEvolutionIndex]);
+    setPokemon(nextEvolutions[selectedEvolutionIndex]);
     setWeightHistory([pokemonStats.Weight]);
     setFeedHistory([]);
   };
+
+  const isEvolutionSelected = () => {
+    return nextEvolutions.length > 0 && selectedEvolutionIndex !== null;
+  };
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (!lockEvolution) {
+        setSelectedEvolutionIndex((i) => Math.min(i + 1, nextEvolutions.length - 1));
+      }
+    },
+    onSwipedRight: () => {
+      if (!lockEvolution) {
+        setSelectedEvolutionIndex((i) => Math.max(i - 1, 0));
+      }
+    },
+    trackMouse: true,
+    trackTouch: true,
+  });
 
   const BasicSkeleton = () => {
     return (
@@ -171,62 +202,104 @@ export default function Profile() {
           </div>
         )}
         {!isLoadingPokemon && (
-          <div className="flex justify-center mt-4 space-x-2 items-center w-full overflow-hidden p-4">
+          <div className="flex justify-center mt-4 space-x-2 items-center w-full p-4">
             {!fadeOutComplete && (
               <img
                 alt={pokemon?.name}
-                className={`w-48 h-48 object-cover`}
+                className="w-48 h-48 object-cover"
                 onAnimationEnd={handleFadeOutAnimationEnd}
                 src={pokemon?.imageUrl.large}
               />
             )}
-            {nextEvolution && (
+            {nextEvolutions && nextEvolutions.length > 0 && (
               <>
                 {!fadeOutComplete && (
                   <div>
                     <img alt="arrow-right" className="w-16 h-16" src="/arrow.svg" />
                   </div>
                 )}
-                <div>
-                  <img
-                    alt={nextEvolution?.name}
-                    className="w-28 h-28 object-cover"
-                    src={nextEvolution?.imageUrl.large}
-                  />
-                  <p className="text-center text-gray-500 text-sm capitalize">
-                    {nextEvolution?.name}
-                  </p>
+                <div
+                  className="flex w-full overflow-x-scroll hide-scroll-bar"
+                  {...(!lockEvolution ? handlers : {})}
+                >
+                  <div className="flex transition-transform duration-300 ease-in-out min-w-full">
+                    {nextEvolutions.map((evolution, index) => (
+                      <div
+                        className={`flex-shrink-0 flex-grow-0 ${
+                          index === selectedEvolutionIndex ? 'active' : ''
+                        }`}
+                        key={evolution.id}
+                        style={{ width: '100%', maxWidth: '100vw' }}
+                      >
+                        <div className="flex justify-center items-center">
+                          {lockEvolution ? (
+                            <button
+                              className="w-6/12 bg-orange-300 text-white py-2 rounded-full text-sm flex justify-center items-center"
+                              onClick={() => setLockEvolution(true)}
+                            >
+                              Locked
+                            </button>
+                          ) : (
+                            <button
+                              className="w-9/12 mt-2 bg-orange-500 text-white py-2 rounded-full text-sm flex justify-center items-center"
+                              onClick={() => setLockEvolution(true)}
+                            >
+                              Pick Evolution
+                            </button>
+                          )}
+                        </div>
+
+                        <img
+                          alt={evolution.name}
+                          className="object-cover opacity-50 hover:opacity-100"
+                          src={evolution.imageUrl.large}
+                          style={{ width: '100%', height: 'auto' }}
+                        />
+                        <p className="text-center text-gray-500 text-sm capitalize mt-2 font-semibold">
+                          {evolution.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
           </div>
         )}
-        {!isLoadingPokemon && nextEvolution && (
+        {!isLoadingPokemon && selectedEvolutionIndex !== null && nextEvolutions.length > 0 && (
           <div className="text-center mt-2">
             <p className="text-gray-500 text-sm">Next Evolution Weight</p>
             <div className="flex font-bold text-xl justify-center gap-1 mt-2">
               <p className="self-center">
-                <span className=" text-orange-500">{nextEvolution.stats.weight}</span>
+                <span className=" text-orange-500">
+                  {nextEvolutions[selectedEvolutionIndex]?.stats.weight}
+                </span>
                 <span
                   className={`${
-                    nextEvolution.stats.weight - pokemonStats.Weight >= 0
+                    nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight >= 0
                       ? 'text-red-600'
                       : 'text-green-600 '
                   } text-xs`}
                 >
-                  &nbsp;({nextEvolution.stats.weight - pokemonStats.Weight <= 0 ? '+' : '-'}
+                  &nbsp;(
+                  {nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight <= 0
+                    ? '+'
+                    : '-'}
                   <CountUp
                     duration={2}
-                    end={Math.abs(nextEvolution.stats.weight - pokemonStats.Weight)}
+                    end={Math.abs(
+                      nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight,
+                    )}
                     start={Math.abs(
-                      nextEvolution.stats.weight - weightHistory[weightHistory.length - 2],
+                      nextEvolutions[selectedEvolutionIndex]?.stats.weight -
+                        weightHistory[weightHistory.length - 2],
                     )}
                   />
                   )
                 </span>
               </p>
             </div>
-            {nextEvolution.stats.weight - pokemonStats.Weight <= 0 && (
+            {nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight <= 0 && (
               <button
                 className="px-3 py-2 rounded-full bg-orange-500 text-white mt-2 font-bold w-1/3"
                 onClick={handleNextEvolutionChange}
@@ -236,7 +309,7 @@ export default function Profile() {
             )}
           </div>
         )}
-        {!isLoadingPokemon && !nextEvolution && (
+        {!isLoadingPokemon && nextEvolutions.length === 0 && (
           <div className="mx-auto p-4 py-2 bg-red-300 rounded-full text-white w-max flex justify-center items-center">
             <span>End of Evolution Chain</span>
           </div>
@@ -278,7 +351,9 @@ export default function Profile() {
             </div>
             <div>
               <p className="text-gray-500 text-sm">Firmness</p>
-              <p className="text-lg font-bold capitalize">{selectedBerry?.firmness || '-'}</p>
+              <p className="text-lg font-bold capitalize">
+                {selectedBerry?.firmness.replaceAll('-', ' ') || '-'}
+              </p>
             </div>
             <div>
               <p className="text-gray-500 text-sm">Weight</p>
@@ -298,7 +373,7 @@ export default function Profile() {
       <div className="w-full px-4 py-2 mt-8">
         <button
           className="w-full disabled:bg-gray-300 bg-green-800 text-white py-2 rounded-full"
-          disabled={!selectedBerry}
+          disabled={!selectedBerry || !isEvolutionSelected()}
           onClick={() => feedPokemon()}
         >
           Feed Pokemon

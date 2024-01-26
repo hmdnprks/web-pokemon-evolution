@@ -68,6 +68,43 @@ async function getNextEvolution(
   return nextEvolution;
 }
 
+async function getNextEvolutions(
+  currentName: string,
+  dataEvolution: any,
+): Promise<EvolutionData[] | null> {
+  let nextEvolutionNode = dataEvolution.chain;
+
+  // Find the current evolution node
+  while (nextEvolutionNode && nextEvolutionNode.species.name !== currentName) {
+    if (nextEvolutionNode.evolves_to.length > 0) {
+      nextEvolutionNode = nextEvolutionNode.evolves_to[0];
+    } else {
+      return null; // No further evolutions
+    }
+  }
+
+  // Collect all next evolutions
+  const nextEvolutions = [];
+  for (const node of nextEvolutionNode.evolves_to) {
+    const nextEvolution = extractEvolutionData(node);
+    if (nextEvolution) {
+      const nextEvolutionData: PokemonSingleAPIResponse = await fetchJson(
+        `${process.env.API_URL}/pokemon/${nextEvolution.id}`,
+      );
+      nextEvolution.stats = {
+        hp: nextEvolutionData.stats[0].base_stat,
+        attack: nextEvolutionData.stats[1].base_stat,
+        defense: nextEvolutionData.stats[2].base_stat,
+        speed: nextEvolutionData.stats[5].base_stat,
+        weight: nextEvolutionData.weight,
+      };
+      nextEvolutions.push(nextEvolution);
+    }
+  }
+
+  return nextEvolutions.length > 0 ? nextEvolutions : null;
+}
+
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const data: PokemonSingleAPIResponse = await fetchJson(
     `${process.env.API_URL}/pokemon/${params.id}`,
@@ -75,7 +112,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const dataSpecies: PokemonSpeciesAPIResponse = await fetchJson(data.species.url);
   const dataEvolution = await fetchJson(dataSpecies.evolution_chain.url);
 
-  const nextEvolution = await getNextEvolution(data.name, dataEvolution);
+  const nextEvolutions = await getNextEvolutions(data.name, dataEvolution);
 
   const pokemonData = {
     id: data.id,
@@ -87,7 +124,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       speed: data.stats[5].base_stat,
       weight: data.weight,
     },
-    nextEvolution,
+    nextEvolutions,
   };
 
   return Response.json({ data: pokemonData });
