@@ -18,7 +18,7 @@
     "commit": "cz"
   },
   "dependencies": {
-    "@sentry/nextjs": "^7.93.0",
+    "@sentry/nextjs": "^7.94.1",
     "@tanstack/react-query": "^5.17.9",
     "axios": "^1.6.5",
     "localstorage-slim": "^2.7.0",
