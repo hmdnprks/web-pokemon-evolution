@@ -57,19 +57,6 @@ This project uses Jest for unit testing. To run the tests, use the following com
 npm run test
 ```
 
-## Running Cypress Tests
-
-This project uses Cypress for end-to-end testing. To run the Cypress tests, use the following command:
-
-```sh
-
-npm run cypress:open
-```
-
-This will open the Cypress Test Runner. You can then select the test files you want to run.
-
-Please note that the application must be running locally for the Cypress tests to work.
-
 ## Linting and Formatting
 
 This project uses ESLint and Prettier for linting and formatting. To run the linter, use the following command:
