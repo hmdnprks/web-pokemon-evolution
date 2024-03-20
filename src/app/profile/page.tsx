@@ -17,6 +17,9 @@ import CountUp from 'react-countup';
 import ChevronAnimation from '@component/components/ChevronAnimation/ChevronAnimation';
 import { clearTimeout } from 'timers';
 import { useSwipeable } from 'react-swipeable';
+import Modal from '@component/components/Modal/Modal';
+import InformationIcon from '@component/components/Icons/Information/InformationIcon';
+import ModalContent from './ModalContent';
 
 interface PokemonStats {
   HP: number;
@@ -63,6 +66,11 @@ export default function Profile() {
   const [nextEvolutions, setNextEvolutions] = useState<NextEvolution[]>([]);
   const [selectedEvolutionIndex, setSelectedEvolutionIndex] = useState<number>(0);
   const [lockEvolution, setLockEvolution] = useState(false);
+
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const closeModal = () => setIsOpen(false);
+  const openModal = () => setIsOpen(true);
 
   useEffect(() => {
     if (!pokemon) {
@@ -317,7 +325,18 @@ export default function Profile() {
         <div className="text-center mt-8 px-4 grid grid-cols-3 gap-3 justify-items-center">
           {Object.entries(pokemonStats).map(([key, value]) => (
             <div key={key}>
-              <div className="text-gray-500 text-sm">{key}</div>
+              <div
+                className={`text-gray-500 text-sm ${
+                  key === 'Weight' && 'flex align-middle justify-center gap-1'
+                }`}
+              >
+                {key}{' '}
+                {key === 'Weight' && (
+                  <div onClick={openModal}>
+                    <InformationIcon className="w-4 h-4" />
+                  </div>
+                )}
+              </div>
               {isLoadingPokemon && (
                 <div className="w-12">
                   <BasicSkeleton />
@@ -379,6 +398,12 @@ export default function Profile() {
           Feed Pokemon
         </button>
       </div>
+
+      <Modal closeModal={closeModal} isOpen={isOpen}>
+        <div className="mt-2">
+          <ModalContent />
+        </div>
+      </Modal>
     </div>
   );
 }
