@@ -54,23 +54,15 @@ export async function GET(request: Request) {
     const pokemonListWithDetails = await Promise.all(
       multipleDataResult.results.map(async (pokemon: any) => {
         const pokemonId = pokemon.url.split('/')[6];
-        const pokemonRes = await fetch(`${process.env.API_URL}/pokemon/${pokemonId}`);
-        const pokemonData = await handleResponse(pokemonRes);
-
-        if (pokemonData.error) {
-          return { ...pokemon, error: pokemonData.error };
-        }
+        const imageUrl = {
+          small: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
+          large: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`,
+        };
 
         return {
           ...pokemon,
           id: pokemonId,
-          imageUrl: {
-            gif: pokemonData.sprites.versions?.['generation-v']?.['black-white'].animated
-              .front_default,
-            small: pokemonData.sprites.front_default,
-            large: pokemonData.sprites.other['official-artwork'].front_default,
-            shiny: pokemonData.sprites.other['home'].front_default,
-          },
+          imageUrl,
         };
       }),
     );
