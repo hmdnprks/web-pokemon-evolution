@@ -38,7 +38,7 @@ const BerryList: React.FC<BerryListProps> = ({ berries, setSelectedBerry, isLoad
     return (
       <div className="flex overflow-x-auto p-2 rounded-full border">
         {berries.map((berry) => (
-          <div
+          <button
             className={`flex-none mx-2 p-1 rounded-lg ${
               selectedBerryId === berry.id ? 'bg-red-300' : ''
             }`}
@@ -46,7 +46,7 @@ const BerryList: React.FC<BerryListProps> = ({ berries, setSelectedBerry, isLoad
             onClick={() => handleSelectBerry(berry)}
           >
             <img alt={berry.name} className="w-10 h-10 object-cover" src={berry.imageUrl} />
-          </div>
+          </button>
         ))}
       </div>
     );
