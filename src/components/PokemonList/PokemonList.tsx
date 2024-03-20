@@ -21,6 +21,15 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onSelect, isSelected
       isSelected ? 'border-2 border-red-500' : 'border-gray-200'
     } rounded-lg overflow-hidden`}
     onClick={() => onSelect(pokemon)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        onSelect(pokemon);
+        e.preventDefault();
+      }
+    }}
+    role="list"
+    style={{ cursor: 'pointer' }}
+    tabIndex={0}
   >
     <img alt={pokemon.name} className="w-full h-auto" src={pokemon.imageUrl.small} />
     <h2 className="text-center text-sm capitalize overflow-hidden text-ellipsis whitespace-nowrap">
