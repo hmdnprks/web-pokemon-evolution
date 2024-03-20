@@ -332,9 +332,9 @@ export default function Profile() {
               >
                 {key}{' '}
                 {key === 'Weight' && (
-                  <div onClick={openModal}>
+                  <button onClick={openModal}>
                     <InformationIcon className="w-4 h-4" />
-                  </div>
+                  </button>
                 )}
               </div>
               {isLoadingPokemon && (
