@@ -16,6 +16,7 @@
     "commit": "cz"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.18",
     "@sentry/nextjs": "^7.93.0",
     "@tanstack/react-query": "^5.17.9",
     "axios": "^1.6.5",
