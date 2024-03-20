@@ -9,6 +9,7 @@ env:
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  PRODUCTION_DEPLOYMENT_URL: 'https://pokemon.hamdan.id/'
 
 on:
   push:
@@ -74,7 +75,7 @@ jobs:
         if: success()
         run: |
           DEPLOYMENT_URL=${{ steps.extract-url.outputs.deployment-url }}
-          MESSAGE="✅🚀 Production deployment succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: $DEPLOYMENT_URL"
+          MESSAGE="✅🚀 Production deployment succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: $PRODUCTION_DEPLOYMENT_URL"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
 
       - name: Send Failure Notification
