@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PokemonItemResult } from '@component/interfaces/pokemon';
 import Skeleton from '../Skeletion/Skeleton';
+import Image from 'next/image';
 
 interface PokemonCardProps {
   pokemon: PokemonItemResult;
@@ -31,7 +32,13 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon, onSelect, isSelected
     style={{ cursor: 'pointer' }}
     tabIndex={0}
   >
-    <img alt={pokemon.name} className="w-full h-auto" src={pokemon.imageUrl.small} />
+    <Image
+      alt={pokemon.name}
+      className="w-full h-auto"
+      height={100}
+      src={pokemon.imageUrl.small}
+      width={150}
+    />
     <h2 className="text-center text-sm capitalize overflow-hidden text-ellipsis whitespace-nowrap">
       {pokemon.name}
     </h2>

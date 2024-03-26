@@ -7,6 +7,7 @@ import { PokemonItemResult } from '@component/interfaces/pokemon';
 import { getFromStorage, setToStorage } from '@component/hooks/usePersistedState';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
+import Image from 'next/image';
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,6 +87,9 @@ export default function Home() {
 
   return (
     <main className="flex flex-col h-screen">
+      <div className="flex justify-center p-2">
+        <Image alt="Pokemon Logo" height={80} src="/pokemon-logo.svg" width={160} />
+      </div>
       <div className="flex justify-center p-5">
         <SearchPokemon clearSearch={handleClearSearch} onSearch={handleSearch} />
       </div>
