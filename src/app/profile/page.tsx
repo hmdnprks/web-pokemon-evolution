@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getFromStorage, setToStorage } from '@component/hooks/usePersistedState';
 import {
@@ -35,6 +35,8 @@ interface BerryItem extends BerryItemResult {
 
 export default function Profile() {
   const router = useRouter();
+  const observer = useRef<IntersectionObserver | null>(null);
+
   const [pokemon, setPokemon] = useState<PokemonItemResult | null>(
     getFromStorage('POKEMON_PROFILE'),
   );
@@ -54,8 +56,17 @@ export default function Profile() {
   const [feedHistory, setFeedHistory] = useState<BerryItem[]>([]);
   const [weightHistory, setWeightHistory] = useState<number[]>([]);
 
-  const { data: berryList, isLoading: isLoadingBerries } = useBerryList();
+  const [offsetBerry, setOffsetBerry] = useState(0);
+  const limitBerry = 20;
+
+  const {
+    data: berryList,
+    isLoading: isLoadingBerries,
+    isFetched: isFetchedBerries,
+  } = useBerryList(limitBerry, offsetBerry);
   const berries: BerryItemResult[] = berryList?.results;
+
+  const [berriesData, setBerriesData] = useState<BerryItemResult[]>([]);
 
   const [selectedBerry, setSelectedBerry] = useState<BerryItemResult | null>(null);
   const [showChevronUp, setShowChevronUp] = useState(false);
@@ -103,8 +114,16 @@ export default function Profile() {
     // Assuming pokemonDetail.nextEvolutions is an array of evolutions
     if (pokemonDetail && pokemonDetail.nextEvolutions) {
       setNextEvolutions(pokemonDetail.nextEvolutions);
+
+      setLockEvolution(pokemonDetail.nextEvolutions.length === 1);
     }
   }, [pokemonDetail]);
+
+  useEffect(() => {
+    if (isFetchedBerries) {
+      setBerriesData((prevState) => [...prevState, ...(berries || [])]);
+    }
+  }, [isFetchedBerries, berries]);
 
   const deletePokemon = () => {
     setToStorage('POKEMON_PROFILE', null);
@@ -162,6 +181,30 @@ export default function Profile() {
     trackMouse: true,
     trackTouch: true,
   });
+
+  const loadMoreBerries = () => {
+    setOffsetBerry((prevOffset) => prevOffset + limitBerry);
+  };
+
+  const lastBerryElementRef = useCallback(
+    (node: any) => {
+      if (isLoadingBerries) {
+        return;
+      }
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoadingBerries) {
+          loadMoreBerries();
+        }
+      });
+      if (node) {
+        observer.current.observe(node);
+      }
+    },
+    [isLoadingBerries],
+  );
 
   const BasicSkeleton = () => {
     return (
@@ -245,7 +288,7 @@ export default function Profile() {
                               className="w-6/12 bg-orange-300 text-white py-2 rounded-full text-sm flex justify-center items-center"
                               onClick={() => setLockEvolution(true)}
                             >
-                              Locked
+                              Next
                             </button>
                           ) : (
                             <button
@@ -382,8 +425,9 @@ export default function Profile() {
             </div>
           </div>
           <BerryList
-            berries={berries}
+            berries={berriesData}
             isLoading={isLoadingBerries}
+            lastBerryElementRef={lastBerryElementRef}
             setSelectedBerry={(item) => setSelectedBerry(item)}
           />
         </div>

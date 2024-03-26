@@ -8,12 +8,14 @@ jest.mock('axios');
 
 describe('useBerry', () => {
   it('calls useQuery with correct arguments', () => {
-    renderHook(() => useBerryList());
+    renderHook(() => useBerryList(20, 0));
 
-    expect(useQuery).toHaveBeenCalledWith({
-      queryKey: ['berryList'],
-      queryFn: expect.any(Function),
-    });
+    expect(useQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: ['berryList', 20, 0],
+        queryFn: expect.any(Function),
+      }),
+    );
   });
 
   it('calls axios.get when useQuery fetch function is invoked', async () => {
@@ -29,12 +31,17 @@ describe('useBerry', () => {
       };
     });
 
-    const { result } = renderHook(() => useBerryList());
+    const { result } = renderHook(() => useBerryList(20, 0));
 
     await act(async () => {
       await result.current.data;
     });
 
-    expect(axios.get).toHaveBeenCalledWith('/api/berry');
+    expect(axios.get).toHaveBeenCalledWith('/api/berry', {
+      params: {
+        limit: 20,
+        offset: 0,
+      },
+    });
   });
 });

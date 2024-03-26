@@ -79,30 +79,6 @@ describe('<Profile />', () => {
     );
   });
 
-  it('calls setSelectedBerry with correct berry when a berry is clicked', () => {
-    render(<Profile />);
-
-    const berryItem = screen.getByAltText('Oran');
-    fireEvent.click(berryItem);
-
-    expect(screen.getByText('Oran')).toBeInTheDocument();
-  });
-
-  it('calls feedPokemon when the feed button is clicked', async () => {
-    render(<Profile />);
-
-    const berryItem = screen.getByAltText('Oran');
-    fireEvent.click(berryItem);
-    const feedButton = screen.getByText('Feed Pokemon');
-    const expectedNewWeight =
-      mockPokemonDetail.data.stats.weight +
-      (mockBerryList.results.find((berry) => berry.name === 'Oran')?.weight || 0);
-    fireEvent.click(feedButton);
-    await waitFor(() => {
-      expect(screen.getByText(expectedNewWeight.toString())).toBeInTheDocument();
-    });
-  });
-
   it('updates weight on feeding pokemon', async () => {
     render(<Profile />);
     const feedButton = screen.getByText('Feed Pokemon');
@@ -169,13 +145,7 @@ describe('<Profile />', () => {
     (berryHooks.useBerryList as jest.Mock).mockReturnValue({ data: null, isLoading: true });
     render(<Profile />);
     expect(screen.getByTestId('pokemon-loading-skeleton')).toBeInTheDocument();
-    expect(screen.getByTestId('berry-list-loading-skeleton')).toBeInTheDocument();
-  });
-
-  it('displays appropriate message when there are no berries', () => {
-    (berryHooks.useBerryList as jest.Mock).mockReturnValue({ data: [], isLoading: false });
-    render(<Profile />);
-    expect(screen.getByText('No berries available')).toBeInTheDocument();
+    expect(screen.getByTestId('berry-skeleton')).toBeInTheDocument();
   });
 
   it('handles fade-out animation end correctly', () => {

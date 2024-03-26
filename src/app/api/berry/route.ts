@@ -1,7 +1,17 @@
 import { BerryListAPIResponse, BerrySingleAPIResponse } from '@component/interfaces/berry';
 
 export async function GET(request: Request) {
-  const res = await fetch(`${process.env.API_URL}/berry`);
+  const { searchParams } = new URL(request.url);
+  const limit = searchParams.get('limit');
+  const offset = searchParams.get('offset');
+
+  let url = `${process.env.API_URL}/berry`;
+  if (limit && offset) {
+    url += `?limit=${limit}&offset=${offset}`;
+  }
+
+  const res = await fetch(url);
+
   const data: BerryListAPIResponse = await res.json();
 
   const berryListWithDetails = await Promise.all(

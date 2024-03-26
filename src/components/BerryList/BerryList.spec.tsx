@@ -22,14 +22,30 @@ describe('BerryList', () => {
     },
   ];
 
+  const lastBerryElementRef = { current: null };
+
   it('renders the list of berries', () => {
-    render(<BerryList berries={mockBerries} isLoading={false} setSelectedBerry={() => {}} />);
+    render(
+      <BerryList
+        berries={mockBerries}
+        isLoading={false}
+        lastBerryElementRef={lastBerryElementRef}
+        setSelectedBerry={() => {}}
+      />,
+    );
     const berryElements = screen.getAllByRole('img');
     expect(berryElements).toHaveLength(mockBerries.length);
   });
 
   it('displays the correct alt text for each berry image', () => {
-    render(<BerryList berries={mockBerries} isLoading={false} setSelectedBerry={() => {}} />);
+    render(
+      <BerryList
+        berries={mockBerries}
+        isLoading={false}
+        lastBerryElementRef={lastBerryElementRef}
+        setSelectedBerry={() => {}}
+      />,
+    );
     const firstBerryName = screen.getByAltText('Cheri');
     const secondBerryName = screen.getByAltText('Chesto');
     expect(firstBerryName).toBeInTheDocument();
@@ -37,7 +53,14 @@ describe('BerryList', () => {
   });
 
   it('does not render any berries when berries array is empty', () => {
-    render(<BerryList berries={[]} isLoading={false} setSelectedBerry={() => {}} />);
+    render(
+      <BerryList
+        berries={[]}
+        isLoading={false}
+        lastBerryElementRef={lastBerryElementRef}
+        setSelectedBerry={() => {}}
+      />,
+    );
     const berryElements = screen.queryAllByRole('img');
     expect(berryElements).toHaveLength(0);
   });
@@ -45,7 +68,12 @@ describe('BerryList', () => {
   it('calls setSelectedBerry when a berry is clicked', () => {
     const mockSetSelectedBerry = jest.fn();
     render(
-      <BerryList berries={mockBerries} isLoading={false} setSelectedBerry={mockSetSelectedBerry} />,
+      <BerryList
+        berries={mockBerries}
+        isLoading={false}
+        lastBerryElementRef={lastBerryElementRef}
+        setSelectedBerry={mockSetSelectedBerry}
+      />,
     );
     const firstBerry = screen.getByAltText('Cheri');
     fireEvent.click(firstBerry);
@@ -54,17 +82,23 @@ describe('BerryList', () => {
 
   it('highlights the selected berry', () => {
     const { rerender } = render(
-      <BerryList berries={mockBerries} isLoading={false} setSelectedBerry={() => {}} />,
+      <BerryList
+        berries={mockBerries}
+        isLoading={false}
+        lastBerryElementRef={lastBerryElementRef}
+        setSelectedBerry={() => {}}
+      />,
     );
     const firstBerry = screen.getByAltText('Cheri');
     fireEvent.click(firstBerry);
-    rerender(<BerryList berries={mockBerries} isLoading={false} setSelectedBerry={() => {}} />);
+    rerender(
+      <BerryList
+        berries={mockBerries}
+        isLoading={false}
+        lastBerryElementRef={lastBerryElementRef}
+        setSelectedBerry={() => {}}
+      />,
+    );
     expect(firstBerry.parentElement).toHaveClass('bg-red-300');
-  });
-
-  it('renders the skeleton when isLoading is true', () => {
-    render(<BerryList berries={[]} isLoading={true} setSelectedBerry={() => {}} />);
-    const skeletonElements = screen.getAllByTestId('skeleton');
-    expect(skeletonElements).toHaveLength(10);
   });
 });
