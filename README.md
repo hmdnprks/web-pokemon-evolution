@@ -1,6 +1,4 @@
-[![codecov](https://codecov.io/gh/hmdnprks/web-pokemon-evolution/graph/badge.svg?token=I135R5PU6P)](https://codecov.io/gh/hmdnprks/web-pokemon-evolution) [![Known Vulnerabilities](https://snyk.io/test/github/hmdnprks/web-pokemon-evolution/badge.svg)](https://snyk.io/test/github/hmdnprks/web-pokemon-evolution)
-
-![vercel](https://vercelbadge.vercel.app/api/hmdnprks/web-pokemon-evolution?style=for-the-badge) ![Dependabot](https://img.shields.io/badge/dependabot-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
+![vercel](https://vercelbadge.vercel.app/api/hmdnprks/web-pokemon-evolution?style=for-the-badge) ![Dependabot](https://img.shields.io/badge/dependabot-025E8C?style=for-the-badge&logo=dependabot&logoColor=white) [![Known Vulnerabilities](https://snyk.io/test/github/hmdnprks/web-pokemon-evolution/badge.svg)](https://snyk.io/test/github/hmdnprks/web-pokemon-evolution)
 
 ## SonarQube Cloud Metrics
 
