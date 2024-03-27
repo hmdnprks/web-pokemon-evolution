@@ -46,14 +46,13 @@ export default function Profile() {
   );
   const pokemonDetail: PokemonStatsAPIResponse = pokemonDetailRes?.data;
 
-  const [pokemonStats, setPokemonStats] = useState<PokemonStats>({
-    HP: 0,
-    Attack: 0,
-    Defense: 0,
-    Speed: 0,
-    Weight: 0,
-  });
-  const [feedHistory, setFeedHistory] = useState<BerryItem[]>([]);
+  const [pokemonStats, setPokemonStats] = useState<PokemonStats>(
+    () => getFromStorage('POKEMON_STATS') || { HP: 0, Attack: 0, Defense: 0, Speed: 0, Weight: 0 },
+  );
+
+  const [feedHistory, setFeedHistory] = useState<BerryItem[]>(
+    () => getFromStorage('FEED_HISTORY') || [],
+  );
   const [weightHistory, setWeightHistory] = useState<number[]>([]);
 
   const [offsetBerry, setOffsetBerry] = useState(0);
@@ -74,7 +73,9 @@ export default function Profile() {
   const [chevronTimeoutId, setChevronTimeoutId] = useState<number | null>(null);
   const [fadeOutComplete, setFadeOutComplete] = useState(false);
 
-  const [nextEvolutions, setNextEvolutions] = useState<NextEvolution[]>([]);
+  const [nextEvolutions, setNextEvolutions] = useState<NextEvolution[]>(
+    () => getFromStorage('NEXT_EVOLUTIONS') || [],
+  );
   const [selectedEvolutionIndex, setSelectedEvolutionIndex] = useState<number>(0);
   const [lockEvolution, setLockEvolution] = useState(false);
 
@@ -90,7 +91,8 @@ export default function Profile() {
   }, [pokemon, router]);
 
   useEffect(() => {
-    if (pokemonDetail) {
+    const storedPokemon = getFromStorage('POKEMON_STATS');
+    if (pokemonDetail && !storedPokemon) {
       setPokemonStats({
         HP: pokemonDetail?.stats.hp,
         Attack: pokemonDetail?.stats.attack,
@@ -125,9 +127,19 @@ export default function Profile() {
     }
   }, [isFetchedBerries, berries]);
 
+  useEffect(() => {
+    saveStatsToLocal();
+  }, [pokemonStats, feedHistory, nextEvolutions]);
+
   const deletePokemon = () => {
     setToStorage('POKEMON_PROFILE', null);
     router.push('/');
+  };
+
+  const saveStatsToLocal = () => {
+    setToStorage('POKEMON_STATS', pokemonStats);
+    setToStorage('FEED_HISTORY', feedHistory);
+    setToStorage('NEXT_EVOLUTIONS', nextEvolutions);
   };
 
   const feedPokemon = () => {
@@ -178,6 +190,7 @@ export default function Profile() {
     setPokemon(nextEvolutions[selectedEvolutionIndex]);
     setWeightHistory([pokemonStats.Weight]);
     setFeedHistory([]);
+    saveStatsToLocal();
   };
 
   const isEvolutionSelected = () => {

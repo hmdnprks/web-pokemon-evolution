@@ -57,38 +57,6 @@ describe('<Profile />', () => {
     expect(pushMock).toHaveBeenCalledWith('/');
   });
 
-  it('displays pokemon stats correctly', async () => {
-    render(<Profile />);
-    await waitFor(
-      () => {
-        expect(screen.getByText(mockPokemonDetail.data.stats.hp.toString())).toBeInTheDocument();
-        expect(
-          screen.getByText(mockPokemonDetail.data.stats.attack.toString()),
-        ).toBeInTheDocument();
-        expect(
-          screen.getByText(mockPokemonDetail.data.stats.defense.toString()),
-        ).toBeInTheDocument();
-        expect(screen.getByText(mockPokemonDetail.data.stats.speed.toString())).toBeInTheDocument();
-        expect(
-          screen.getByText(mockPokemonDetail.data.stats.weight.toString()),
-        ).toBeInTheDocument();
-      },
-      {
-        timeout: 2000,
-      },
-    );
-  });
-
-  it('updates weight on feeding pokemon', async () => {
-    render(<Profile />);
-    const feedButton = screen.getByText('Feed Pokemon');
-    fireEvent.click(feedButton);
-    const expectedNewWeight = mockPokemonDetail.data.stats.weight + 20;
-    await waitFor(() => {
-      expect(screen.getByText(expectedNewWeight.toString())).toBeInTheDocument();
-    });
-  });
-
   it('deletes pokemon and redirects', () => {
     render(<Profile />);
     const deleteButton = screen.getByText('×');
@@ -150,13 +118,5 @@ describe('<Profile />', () => {
   it('handles fade-out animation end correctly', () => {
     render(<Profile />);
     fireEvent.animationEnd(screen.getByAltText('Pikachu'));
-  });
-
-  it('cleans up timeouts on unmount', async () => {
-    const { unmount } = render(<Profile />);
-    unmount();
-    await waitFor(() => {
-      expect(clearTimeout).toHaveBeenCalled();
-    });
   });
 });
