@@ -54,11 +54,7 @@ const BerryList: React.FC<BerryListProps> = ({
             />
           </button>
         ))}
-        {isLoading && (
-          <div data-testid="berry-skeleton">
-            <BerrySkeleton />
-          </div>
-        )}
+        {isLoading && <BerrySkeleton />}
       </div>
     </>
   );
