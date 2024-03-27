@@ -54,7 +54,38 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.login=${{ env.SONAR_TOKEN }}
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.spec.tsx,**/*.config.js,**/*.config.ts,**/*.setup.js
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.spec.tsx,**/*.config.js,**/*.config.ts,**/*.setup.js,src/interfaces/*.ts
+
+      # Check SonarQube Quality Gate Status
+      - name: Check SonarQube Quality Gate Status
+        id: quality_gate
+        run: |
+          URL="https://sonarcloud.io/api/qualitygates/project_status?projectKey=hmdnprks_web-pokemon-evolution"
+          TOKEN="${{ secrets.SONAR_TOKEN }}"
+          STATUS="NONE"
+          while [ "$STATUS" != "OK" ] && [ "$STATUS" != "ERROR" ]; do
+            RESPONSE=$(curl -u $TOKEN: "$URL")
+            STATUS=$(echo $RESPONSE | jq -r '.projectStatus.status')
+            if [ "$STATUS" == "NONE" ]; then
+              echo "Quality Gate status is pending..."
+              sleep 10
+            elif [ "$STATUS" == "ERROR" ]; then
+              echo "Quality Gate failed."
+              echo "::set-output name=quality_gate_passed::false"
+              exit 0
+            fi
+          done
+          echo "Quality Gate passed."
+          echo "::set-output name=quality_gate_passed::true"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Conditional step based on Quality Gate result
+      - name: Halt Deployment Due to Failed Quality Gate
+        if: steps.quality_gate.outputs.quality_gate_passed != 'true'
+        run: |
+          echo "Halting deployment due to failed Quality Gate."
+          exit 1
 
       # Build and deploy to Vercel and capture deployment URL
       - name: Pull Vercel Environment Information
@@ -62,7 +93,7 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
-        if: success()
+        if: success() && steps.quality_gate.outputs.quality_gate_passed == 'true'
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
 
       - name: Extract Deployment URL
