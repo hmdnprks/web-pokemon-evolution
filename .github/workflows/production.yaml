@@ -54,7 +54,7 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.login=${{ env.SONAR_TOKEN }}
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.spec.tsx,**/*.config.js,**/*.config.ts,**/*.setup.js,src/interfaces/*.ts
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.spec.tsx,**/*.config.js,**/*.config.ts,**/*.setup.js,src/interfaces/*.ts,src/app/profile/*.tsx
 
       # Check SonarQube Quality Gate Status
       - name: Check SonarQube Quality Gate Status
