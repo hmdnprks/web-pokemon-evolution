@@ -133,6 +133,7 @@ export default function Profile() {
 
   const deletePokemon = () => {
     setToStorage('POKEMON_PROFILE', null);
+    deleteLocalStats();
     router.push('/');
   };
 
@@ -140,6 +141,12 @@ export default function Profile() {
     setToStorage('POKEMON_STATS', pokemonStats);
     setToStorage('FEED_HISTORY', feedHistory);
     setToStorage('NEXT_EVOLUTIONS', nextEvolutions);
+  };
+
+  const deleteLocalStats = () => {
+    setToStorage('POKEMON_STATS', null);
+    setToStorage('FEED_HISTORY', null);
+    setToStorage('NEXT_EVOLUTIONS', null);
   };
 
   const feedPokemon = () => {
@@ -156,7 +163,7 @@ export default function Profile() {
         }
       }
 
-      const newWeight = pokemonStats.Weight + weightChange;
+      const newWeight = Math.max(0, pokemonStats.Weight + weightChange);
 
       setPokemonStats({
         ...pokemonStats,
