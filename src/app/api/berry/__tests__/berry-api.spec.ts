@@ -35,8 +35,21 @@ describe('Berry List API', () => {
 
     expect(res.status).toBe(200);
     const body = await readableStreamToString(res?.body as ReadableStream);
-    // stringified JSON
     const parsedBody = JSON.parse(body);
     expect(parsedBody.results).toHaveLength(20);
+  });
+
+  it('should correctly handle requests with limit and offset parameters', async () => {
+    const limit = 10;
+    const offset = 5;
+    const requestUrl = `localhost:3000/api/berry?limit=${limit}&offset=${offset}`;
+    const res = await GET(new Request(requestUrl));
+
+    expect(res.status).toBe(200);
+
+    const body = await readableStreamToString(res?.body as ReadableStream);
+    const parsedBody = JSON.parse(body);
+
+    expect(parsedBody.results).toHaveLength(limit);
   });
 });
