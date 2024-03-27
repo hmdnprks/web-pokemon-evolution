@@ -6,8 +6,12 @@ import {
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
-  const data = await response.json();
-  return data;
+  if (response.status === 200) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error('Failed to fetch data');
+  }
 }
 
 function extractEvolutionData(evolutionNode: any): EvolutionData | null {
@@ -34,56 +38,20 @@ function extractEvolutionData(evolutionNode: any): EvolutionData | null {
   };
 }
 
-async function getNextEvolution(
-  currentName: string,
-  dataEvolution: any,
-): Promise<EvolutionData | null> {
-  let nextEvolutionNode = dataEvolution.chain;
-
-  while (nextEvolutionNode && nextEvolutionNode.species.name !== currentName) {
-    nextEvolutionNode = nextEvolutionNode.evolves_to[0];
-  }
-
-  const nextNode = nextEvolutionNode?.evolves_to[0];
-  if (!nextNode) {
-    return null;
-  }
-
-  const nextEvolution = extractEvolutionData(nextNode);
-  if (!nextEvolution) {
-    return null;
-  }
-
-  const nextEvolutionData: PokemonSingleAPIResponse = await fetchJson(
-    `${process.env.API_URL}/pokemon/${nextEvolution.id}`,
-  );
-  nextEvolution.stats = {
-    hp: nextEvolutionData.stats[0].base_stat,
-    attack: nextEvolutionData.stats[1].base_stat,
-    defense: nextEvolutionData.stats[2].base_stat,
-    speed: nextEvolutionData.stats[5].base_stat,
-    weight: nextEvolutionData.weight,
-  };
-
-  return nextEvolution;
-}
-
 async function getNextEvolutions(
   currentName: string,
   dataEvolution: any,
 ): Promise<EvolutionData[] | null> {
   let nextEvolutionNode = dataEvolution.chain;
 
-  // Find the current evolution node
   while (nextEvolutionNode && nextEvolutionNode.species.name !== currentName) {
     if (nextEvolutionNode.evolves_to.length > 0) {
       nextEvolutionNode = nextEvolutionNode.evolves_to[0];
     } else {
-      return null; // No further evolutions
+      return null;
     }
   }
 
-  // Collect all next evolutions
   const nextEvolutions = [];
   for (const node of nextEvolutionNode.evolves_to) {
     const nextEvolution = extractEvolutionData(node);

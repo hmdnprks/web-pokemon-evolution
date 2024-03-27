@@ -43,4 +43,25 @@ describe('Pokemon Detail API', () => {
     const parsedBody = JSON.parse(body);
     expect(parsedBody.data).toHaveProperty('id');
   });
+
+  it('should return pokemon data without evolutions if evolution chain is null', async () => {
+    const res = await GET(new Request('localhost:3000/api/pokemon'), {
+      params: { id: 'venusaur' },
+    });
+
+    const body = await readableStreamToString(res?.body as ReadableStream);
+    const parsedBody = JSON.parse(body);
+
+    expect(parsedBody.data.nextEvolutions).toBeNull();
+  });
+
+  it('should return pokemon data with multiple evolutions correctly', async () => {
+    const res = await GET(new Request('localhost:3000/api/pokemon'), { params: { id: 'eevee' } });
+
+    const body = await readableStreamToString(res?.body as ReadableStream);
+    const parsedBody = JSON.parse(body);
+    const expectedNumberOfEvolutions = 8;
+
+    expect(parsedBody.data.nextEvolutions).toHaveLength(expectedNumberOfEvolutions);
+  });
 });
