@@ -131,7 +131,7 @@ export interface EvolutionData {
     small: string;
     large: string;
   };
-  stats: PokemonStats;
+  stats?: PokemonStats;
 }
 
 interface PokemonStats {

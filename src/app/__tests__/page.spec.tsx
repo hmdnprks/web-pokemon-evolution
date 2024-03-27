@@ -108,4 +108,50 @@ describe('Home Page', () => {
     fireEvent.click(screen.getByText('Clear'));
     expect(screen.getByRole('textbox')).toHaveValue('');
   });
+
+  it('updates pokemon list based on search term', async () => {
+    (usePokemonList as jest.Mock)
+      .mockReturnValueOnce({
+        data: { results: [{ id: '1', name: 'Bulbasaur' }] },
+        isLoading: false,
+        error: null,
+        isFetched: true,
+      })
+      .mockReturnValueOnce({
+        data: { results: [{ id: '2', name: 'Ivysaur' }] },
+        isLoading: false,
+        error: null,
+        isFetched: true,
+      });
+
+    render(<Home />);
+
+    userEvent.type(screen.getByRole('textbox'), 'Ivysaur');
+    fireEvent.click(screen.getByText('Search'));
+
+    expect(await screen.findByText('Ivysaur')).toBeInTheDocument();
+  });
+
+  it('clears the search and pokemon list when clear button is clicked', async () => {
+    (usePokemonList as jest.Mock).mockReturnValue({
+      data: {
+        results: [
+          { id: '1', name: 'Bulbasaur' },
+          { id: '2', name: 'Ivysaur' },
+        ],
+      },
+      isLoading: false,
+      error: null,
+      isFetched: true,
+    });
+
+    render(<Home />);
+
+    userEvent.type(screen.getByRole('textbox'), 'Bulbasaur');
+    await waitFor(() => expect(screen.getByText('Bulbasaur')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText('Clear'));
+
+    expect(screen.getByRole('textbox')).toHaveValue('');
+  });
 });

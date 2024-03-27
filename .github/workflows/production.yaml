@@ -54,7 +54,7 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.login=${{ env.SONAR_TOKEN }}
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.spec.tsx,**/*.config.js,**/*.config.ts,**/*.setup.js,cypress/**
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.spec.tsx,**/*.config.js,**/*.config.ts,**/*.setup.js
 
       # Build and deploy to Vercel and capture deployment URL
       - name: Pull Vercel Environment Information
