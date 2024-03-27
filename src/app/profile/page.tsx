@@ -41,9 +41,11 @@ export default function Profile() {
     getFromStorage('POKEMON_PROFILE'),
   );
 
-  const { data: pokemonDetailRes, isLoading: isLoadingPokemon } = usePokemonDetail(
-    pokemon?.id || '',
-  );
+  const {
+    data: pokemonDetailRes,
+    isLoading: isLoadingPokemon,
+    isFetched,
+  } = usePokemonDetail(pokemon?.id || '');
   const pokemonDetail: PokemonStatsAPIResponse = pokemonDetailRes?.data;
 
   const [pokemonStats, setPokemonStats] = useState<PokemonStats>(
@@ -91,18 +93,28 @@ export default function Profile() {
   }, [pokemon, router]);
 
   useEffect(() => {
-    const storedPokemon = getFromStorage('POKEMON_STATS');
-    if (pokemonDetail && !storedPokemon) {
-      setPokemonStats({
-        HP: pokemonDetail?.stats.hp,
-        Attack: pokemonDetail?.stats.attack,
-        Defense: pokemonDetail?.stats.defense,
-        Speed: pokemonDetail?.stats.speed,
-        Weight: pokemonDetail?.stats.weight,
-      });
-      setWeightHistory([pokemonDetail?.stats.weight]);
+    const storedStatsJson = getFromStorage('POKEMON_STATS');
+    const storedStats = storedStatsJson || null;
+
+    if (!storedStats && isFetched) {
+      const initialStats = {
+        HP: pokemonDetail.stats.hp,
+        Attack: pokemonDetail.stats.attack,
+        Defense: pokemonDetail.stats.defense,
+        Speed: pokemonDetail.stats.speed,
+        Weight: pokemonDetail.stats.weight,
+      };
+
+      setPokemonStats(initialStats);
+      setWeightHistory([pokemonDetail.stats.weight]);
     }
-  }, [pokemonDetail]);
+
+    if (isFetched && pokemonDetail.nextEvolutions) {
+      setNextEvolutions(pokemonDetail.nextEvolutions);
+
+      setLockEvolution(pokemonDetail.nextEvolutions.length === 1);
+    }
+  }, [isFetched, pokemonDetail]);
 
   useEffect(() => {
     return () => {
@@ -113,26 +125,18 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    // Assuming pokemonDetail.nextEvolutions is an array of evolutions
-    if (pokemonDetail && pokemonDetail.nextEvolutions) {
-      setNextEvolutions(pokemonDetail.nextEvolutions);
-
-      setLockEvolution(pokemonDetail.nextEvolutions.length === 1);
-    }
-  }, [pokemonDetail]);
-
-  useEffect(() => {
     if (isFetchedBerries) {
       setBerriesData((prevState) => [...prevState, ...(berries || [])]);
     }
   }, [isFetchedBerries, berries]);
 
   useEffect(() => {
-    saveStatsToLocal();
+    if (pokemonStats.Weight > 0) {
+      saveStatsToLocal();
+    }
   }, [pokemonStats, feedHistory, nextEvolutions]);
 
   const deletePokemon = () => {
-    setToStorage('POKEMON_PROFILE', null);
     deleteLocalStats();
     router.push('/');
   };
@@ -144,9 +148,10 @@ export default function Profile() {
   };
 
   const deleteLocalStats = () => {
-    setToStorage('POKEMON_STATS', null);
-    setToStorage('FEED_HISTORY', null);
-    setToStorage('NEXT_EVOLUTIONS', null);
+    localStorage.removeItem('POKEMON_PROFILE');
+    localStorage.removeItem('POKEMON_STATS');
+    localStorage.removeItem('FEED_HISTORY');
+    localStorage.removeItem('NEXT_EVOLUTIONS');
   };
 
   const feedPokemon = () => {
