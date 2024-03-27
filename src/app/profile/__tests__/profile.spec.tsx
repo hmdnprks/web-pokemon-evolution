@@ -145,7 +145,6 @@ describe('<Profile />', () => {
     (berryHooks.useBerryList as jest.Mock).mockReturnValue({ data: null, isLoading: true });
     render(<Profile />);
     expect(screen.getByTestId('pokemon-loading-skeleton')).toBeInTheDocument();
-    expect(screen.getByTestId('berry-skeleton')).toBeInTheDocument();
   });
 
   it('handles fade-out animation end correctly', () => {

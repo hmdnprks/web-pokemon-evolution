@@ -12,7 +12,7 @@ import { usePokemonDetail } from '@component/hooks/usePokemon';
 import { useBerryList } from '@component/hooks/useBerry';
 import { BerryItemResult } from '@component/interfaces/berry';
 import BerryList from '@component/components/BerryList/BerryList';
-import { firmnessMap } from '@component/constants/berry-weight';
+import { firmnessMap, prohibitionBerryMap } from '@component/constants/berry-weight';
 import CountUp from 'react-countup';
 import ChevronAnimation from '@component/components/ChevronAnimation/ChevronAnimation';
 import { clearTimeout } from 'timers';
@@ -132,7 +132,20 @@ export default function Profile() {
 
   const feedPokemon = () => {
     if (selectedBerry && isEvolutionSelected()) {
-      const newWeight = pokemonStats.Weight + firmnessMap[selectedBerry.firmness];
+      let weightChange = firmnessMap[selectedBerry.firmness] || 0;
+      const lastBerry = feedHistory[feedHistory.length - 1];
+
+      if (lastBerry && selectedBerry.firmness === lastBerry.firmness) {
+        const prohibitionRule = prohibitionBerryMap.find(
+          (rule) => rule.before === selectedBerry.firmness && rule.after === selectedBerry.firmness,
+        );
+        if (prohibitionRule) {
+          weightChange = -prohibitionRule.weight;
+        }
+      }
+
+      const newWeight = pokemonStats.Weight + weightChange;
+
       setPokemonStats({
         ...pokemonStats,
         Weight: newWeight,
@@ -141,13 +154,17 @@ export default function Profile() {
         ...feedHistory,
         {
           ...selectedBerry,
-          weight: firmnessMap[selectedBerry.firmness],
+          weight: weightChange,
         },
       ]);
       setWeightHistory([...weightHistory, newWeight]);
 
-      setShowChevronUp(true);
-      const id = setTimeout(() => setShowChevronUp(false), 1000);
+      setShowChevronUp(weightChange > 0);
+      setShowChevronDown(weightChange < 0);
+      const id = setTimeout(() => {
+        setShowChevronUp(false);
+        setShowChevronDown(false);
+      }, 1000);
       setChevronTimeoutId(id as unknown as number);
     }
   };
@@ -205,6 +222,18 @@ export default function Profile() {
     },
     [isLoadingBerries],
   );
+
+  const currentWeightDifference = Math.abs(
+    nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight,
+  );
+
+  const startValue =
+    weightHistory.length >= 2
+      ? Math.abs(
+        nextEvolutions[selectedEvolutionIndex]?.stats.weight -
+            weightHistory[weightHistory.length - 2],
+      )
+      : currentWeightDifference;
 
   const BasicSkeleton = () => {
     return (
@@ -336,17 +365,7 @@ export default function Profile() {
                   {nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight <= 0
                     ? '+'
                     : '-'}
-                  <CountUp
-                    duration={2}
-                    end={Math.abs(
-                      nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight,
-                    )}
-                    start={Math.abs(
-                      nextEvolutions[selectedEvolutionIndex]?.stats.weight -
-                        weightHistory[weightHistory.length - 2],
-                    )}
-                  />
-                  )
+                  <CountUp duration={2} end={currentWeightDifference} start={startValue} />)
                 </span>
               </p>
             </div>
