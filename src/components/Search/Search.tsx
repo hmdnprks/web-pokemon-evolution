@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useState } from 'react';
 
 interface SearchComponentProps {
@@ -36,7 +37,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ onSearch, clearSearch
           onClick={handleClearClick}
           role="button"
         >
-          <img alt="close" className="w-5 h-5" src="/close.svg" />
+          <Image alt="close" className="w-5 h-5" height={20} src="/close.svg" width={20} />
         </button>
       )}
     </div>

@@ -47,14 +47,14 @@ const PokomenDisplay: React.FC<PokomenDisplayProps> = ({
   });
 
   const currentWeightDifference = Math.abs(
-    nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight,
+    nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0 - pokemonStats.Weight,
   );
 
   const startValue =
     weightHistory.length >= 2
       ? Math.abs(
-        nextEvolutions[selectedEvolutionIndex]?.stats.weight -
-            weightHistory[weightHistory.length - 2],
+        nextEvolutions[selectedEvolutionIndex]?.stats?.weight ??
+            0 - weightHistory[weightHistory.length - 2],
       )
       : currentWeightDifference;
 
@@ -131,24 +131,27 @@ const PokomenDisplay: React.FC<PokomenDisplayProps> = ({
           <div className="flex font-bold text-xl justify-center gap-1 mt-2">
             <p className="self-center">
               <span className=" text-orange-500">
-                {nextEvolutions[selectedEvolutionIndex]?.stats.weight}
+                {nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0}
               </span>
               <span
                 className={`${
-                  nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight >= 0
+                  nextEvolutions[selectedEvolutionIndex]?.stats?.weight ??
+                  0 - pokemonStats.Weight >= 0
                     ? 'text-red-600'
                     : 'text-green-600 '
                 } text-xs`}
               >
                 &nbsp;(
-                {nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight <= 0
+                {nextEvolutions[selectedEvolutionIndex]?.stats?.weight ??
+                0 - pokemonStats.Weight <= 0
                   ? '+'
                   : '-'}
                 <CountUp duration={2} end={currentWeightDifference} start={startValue} />)
               </span>
             </p>
           </div>
-          {nextEvolutions[selectedEvolutionIndex]?.stats.weight - pokemonStats.Weight <= 0 && (
+          {(nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0) - pokemonStats.Weight <=
+            0 && (
             <button
               className="px-3 py-2 rounded-full bg-orange-500 text-white mt-2 font-bold w-1/3"
               onClick={handleNextEvolutionChange}
