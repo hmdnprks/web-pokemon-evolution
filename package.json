@@ -58,7 +58,7 @@
     "next-router-mock": "^0.9.11",
     "open": "^10.0.3",
     "postcss": "^8",
-    "prettier": "3.1.1",
+    "prettier": "3.2.5",
     "tailwindcss": "^3.3.0",
     "ts-jest": "^29.1.1",
     "typescript": "^5"
