@@ -119,6 +119,4 @@ jobs:
       - name: ZAP Scan
         uses: zaproxy/action-baseline@v0.12.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           target: ${{ env.PRODUCTION_DEPLOYMENT_URL }}
-          cmd_options: '-a'
