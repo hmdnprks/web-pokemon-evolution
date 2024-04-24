@@ -12,8 +12,13 @@ const nextConfig = {
   async headers() {
     return [
       {
-        key: 'X-Content-Type-Options',
-        value: 'nosniff',
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
       },
     ];
   },
