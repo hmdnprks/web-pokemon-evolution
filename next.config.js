@@ -9,6 +9,14 @@ const nextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
