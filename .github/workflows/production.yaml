@@ -106,14 +106,20 @@ jobs:
         if: success()
         run: |
           DEPLOYMENT_URL=${{ steps.extract-url.outputs.deployment-url }}
-          MESSAGE="✅🚀 Production deployment succeeded for ${{ github.repository }} at ${{ github.sha }}. View deployment: $PRODUCTION_DEPLOYMENT_URL"
+          COMMIT_HASH=${{ github.sha }}
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          MESSAGE="✅🚀 Production deployment succeeded for ${{ github.repository }} at $COMMIT_HASH. View deployment: $DEPLOYMENT_URL. Last commit: $COMMIT_URL\nCommit message: $COMMIT_MESSAGE"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
 
       - name: Send Failure Notification
         if: failure()
         run: |
           GITHUB_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          MESSAGE="❌ Production deployment failed for ${{ github.repository }} at ${{ github.sha }}. Check details: $GITHUB_RUN_URL"
+          COMMIT_HASH=${{ github.sha }}
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          MESSAGE="❌ Production deployment failed for ${{ github.repository }} at $COMMIT_HASH. Check details: $GITHUB_RUN_URL. Last commit: $COMMIT_URL\nCommit message: $COMMIT_MESSAGE"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT_ID -d text="$MESSAGE"
 
       - name: ZAP Scan
