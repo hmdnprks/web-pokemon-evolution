@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   description: 'A simple app to search for Pokemon and see their evolutions',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: {
