@@ -21,12 +21,11 @@ Sentry.init({
 
   // You can remove this option if you're not planning to use the Sentry Session Replay feature:
   integrations: [
-    new Sentry.Replay({
-      // Additional Replay configuration goes in here, for example:
+    Sentry.replayIntegration({
       maskAllText: true,
       blockAllMedia: true,
     }),
-    new Sentry.BrowserTracing(),
+    Sentry.browserTracingIntegration(),
   ],
 
   tracePropagationTargets: ['localhost', /^\//, /^https:\/\/pokemon\.hamdan\.\.id/],
