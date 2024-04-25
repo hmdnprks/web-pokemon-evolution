@@ -26,5 +26,8 @@ Sentry.init({
       maskAllText: true,
       blockAllMedia: true,
     }),
+    new Sentry.BrowserTracing(),
   ],
+
+  tracePropagationTargets: ['localhost', /^\//, /^https:\/\/pokemon\.hamdan\.\.id/],
 });
