@@ -1,5 +1,5 @@
 import { NextEvolution } from '@component/interfaces/pokemon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CountUp from 'react-countup';
 import { useSwipeable } from 'react-swipeable';
 
@@ -26,10 +26,30 @@ const PokomenDisplay: React.FC<PokomenDisplayProps> = ({
 }) => {
   const [fadeOutComplete, setFadeOutComplete] = useState(false);
   const [selectedEvolutionIndex, setSelectedEvolutionIndex] = useState<number>(0);
+  const [currentWeightDifference, setCurrentWeightDifference] = useState(0);
+  const [startValue, setStartValue] = useState(0);
 
   const handleFadeOutAnimationEnd = () => {
     setFadeOutComplete(true);
   };
+
+  useEffect(() => {
+    const newCurrentWeightDifference = Math.abs(
+      (nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0) - pokemonStats.Weight,
+    );
+
+    setCurrentWeightDifference(newCurrentWeightDifference);
+
+    const newStartValue =
+      weightHistory.length >= 2
+        ? Math.abs(
+          (nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0) -
+              weightHistory[weightHistory.length - 2],
+        )
+        : newCurrentWeightDifference;
+
+    setStartValue(newStartValue);
+  }, [selectedEvolutionIndex, pokemonStats.Weight, weightHistory, nextEvolutions]);
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
@@ -45,18 +65,6 @@ const PokomenDisplay: React.FC<PokomenDisplayProps> = ({
     trackMouse: true,
     trackTouch: true,
   });
-
-  const currentWeightDifference = Math.abs(
-    nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0 - pokemonStats.Weight,
-  );
-
-  const startValue =
-    weightHistory.length >= 2
-      ? Math.abs(
-        nextEvolutions[selectedEvolutionIndex]?.stats?.weight ??
-            0 - weightHistory[weightHistory.length - 2],
-      )
-      : currentWeightDifference;
 
   return (
     <>
