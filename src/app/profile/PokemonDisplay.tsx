@@ -27,6 +27,7 @@ const PokomenDisplay: React.FC<PokomenDisplayProps> = ({
   const [fadeOutComplete, setFadeOutComplete] = useState(false);
   const [selectedEvolutionIndex, setSelectedEvolutionIndex] = useState<number>(0);
   const [currentWeightDifference, setCurrentWeightDifference] = useState(0);
+  const [currentWeightDifferenceWithSign, setCurrentWeightDifferenceWithSign] = useState(0);
   const [startValue, setStartValue] = useState(0);
 
   const handleFadeOutAnimationEnd = () => {
@@ -34,11 +35,11 @@ const PokomenDisplay: React.FC<PokomenDisplayProps> = ({
   };
 
   useEffect(() => {
-    const newCurrentWeightDifference = Math.abs(
-      (nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0) - pokemonStats.Weight,
-    );
+    const newCurrentWeightDifference =
+      (nextEvolutions[selectedEvolutionIndex]?.stats?.weight ?? 0) - pokemonStats.Weight;
 
-    setCurrentWeightDifference(newCurrentWeightDifference);
+    setCurrentWeightDifference(Math.abs(newCurrentWeightDifference));
+    setCurrentWeightDifferenceWithSign(newCurrentWeightDifference);
 
     const newStartValue =
       weightHistory.length >= 2
@@ -150,10 +151,7 @@ const PokomenDisplay: React.FC<PokomenDisplayProps> = ({
                 } text-xs`}
               >
                 &nbsp;(
-                {nextEvolutions[selectedEvolutionIndex]?.stats?.weight ??
-                0 - pokemonStats.Weight <= 0
-                  ? '+'
-                  : '-'}
+                {currentWeightDifferenceWithSign <= 0 ? '+' : '-'}
                 <CountUp duration={2} end={currentWeightDifference} start={startValue} />)
               </span>
             </p>
