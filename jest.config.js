@@ -9,7 +9,11 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@component/(.*)$': '<rootDir>/src/$1',
   },
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
+    '<rootDir>/src/middleware.ts',
+  ],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
@@ -21,6 +25,7 @@ const customJestConfig = {
     '!**/vendor/**',
     '!src/**/*.d.ts',
     '!src/**/*.cy.tsx',
+    '!src/middleware.ts',
   ],
 };
 
